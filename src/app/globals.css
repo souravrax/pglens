@@ -1,0 +1,62 @@
+@import 'tailwindcss';
+
+:root {
+  --background: #0e0e12;
+  --foreground: #e2e2e8;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Scrollbar */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: #2a2a35;
+  border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #3a3a4a;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a35 transparent;
+}
+
+/* React Flow */
+.react-flow__background {
+  background: var(--background) !important;
+}
+
+.react-flow__minimap {
+  background: #18181f !important;
+  border: 1px solid #2a2a35 !important;
+  border-radius: 8px !important;
+}
+
+.react-flow__controls {
+  border: 1px solid #2a2a35 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls button {
+  background: #18181f !important;
+  color: #e2e2e8 !important;
+  border-bottom: 1px solid #2a2a35 !important;
+}
+
+.react-flow__controls button:hover {
+  background: #2a2a35 !important;
+}
+
+input::placeholder {
+  color: #7c7c8a;
+}

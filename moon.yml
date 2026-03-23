@@ -1,0 +1,34 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: typescript
+
+tasks:
+  dev:
+    command: pnpm dev
+    options:
+      cache: false
+      runInCI: false
+
+  build:
+    command: pnpm build
+    inputs:
+      - 'src/**/*.{ts,tsx,css}'
+      - 'next.config.ts'
+      - 'tsconfig.json'
+    outputs:
+      - '.next'
+
+  typecheck:
+    command: pnpm typecheck
+    inputs:
+      - 'src/**/*.{ts,tsx}'
+      - 'tsconfig.json'
+    options:
+      cache: false
+
+  lint:
+    command: pnpm lint
+    inputs:
+      - 'src/**/*.{ts,tsx}'
+    options:
+      cache: false
