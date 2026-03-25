@@ -6,6 +6,7 @@ import DataTableViewer from '@/components/DataTableViewer'
 
 export default function TablesPage() {
   const selectedTable = useStore(schemaStore, (s) => s.selectedTable)
+  const selectedSchema = useStore(schemaStore, (s) => s.selectedSchema)
 
-  return <DataTableViewer selectedTable={selectedTable} />
+  return <DataTableViewer selectedTable={selectedTable} schema={selectedSchema} />
 }

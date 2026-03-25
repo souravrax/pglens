@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = req.nextUrl
   const table = searchParams.get('table')
+  const schema = searchParams.get('schema') ?? 'public'
   const page = parseInt(searchParams.get('page') ?? '1', 10)
   const pageSize = parseInt(searchParams.get('pageSize') ?? '20', 10)
   const sort = searchParams.get('sort') // e.g. "name:asc"
@@ -18,9 +19,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'table param required' }, { status: 400 })
   }
 
-  // Validate table name to prevent SQL injection
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+  // Validate table and schema names to prevent SQL injection
+  const identifierRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+  if (!identifierRegex.test(table)) {
     return NextResponse.json({ error: 'Invalid table name' }, { status: 400 })
+  }
+  if (!identifierRegex.test(schema)) {
+    return NextResponse.json({ error: 'Invalid schema name' }, { status: 400 })
   }
 
   const client = new Client({ connectionString: databaseUrl })
@@ -59,7 +64,7 @@ export async function GET(req: NextRequest) {
 
     // Count
     const countResult = await client.query(
-      `SELECT COUNT(*) as total FROM "${table}" ${whereSql}`,
+      `SELECT COUNT(*) as total FROM "${schema}"."${table}" ${whereSql}`,
       params,
     )
     const total = parseInt(countResult.rows[0].total, 10)
@@ -67,14 +72,14 @@ export async function GET(req: NextRequest) {
     // Fetch page
     const offset = (page - 1) * pageSize
     const dataResult = await client.query(
-      `SELECT * FROM "${table}" ${whereSql} ${orderSql} LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+      `SELECT * FROM "${schema}"."${table}" ${whereSql} ${orderSql} LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
       [...params, pageSize, offset],
     )
 
     // Get column info
     const colResult = await client.query(
-      `SELECT column_name, udt_name FROM information_schema.columns WHERE table_name = $1 ORDER BY ordinal_position`,
-      [table],
+      `SELECT column_name, udt_name FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2 ORDER BY ordinal_position`,
+      [schema, table],
     )
 
     return NextResponse.json({

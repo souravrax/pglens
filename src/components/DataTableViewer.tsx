@@ -4,23 +4,20 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  flexRender,
   createColumnHelper,
-  type SortingState,
+  type ColumnDef,
 } from '@tanstack/react-table'
-import {
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Loader2,
-} from 'lucide-react'
+import { useQueryState, parseAsInteger, parseAsString } from 'nuqs'
+import { Loader2 } from 'lucide-react'
+
+import { DataTable } from '@/components/data-table/data-table'
+import { DataTableAdvancedToolbar } from '@/components/data-table/data-table-advanced-toolbar'
+import { DataTableFilterList } from '@/components/data-table/data-table-filter-list'
+import { DataTableSortList } from '@/components/data-table/data-table-sort-list'
+import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
+import { Badge } from '@/components/ui/badge'
+import { getValidFilters } from '@/lib/data-table'
+import type { ExtendedColumnFilter } from '@/types/data-table'
 
 type ColumnInfo = { name: string; type: string }
 
@@ -34,16 +31,54 @@ type QueryResult = {
 
 type Props = {
   selectedTable: string | null
+  schema?: string
 }
 
-export default function DataTableViewer({ selectedTable }: Props) {
+export default function DataTableViewer({ selectedTable, schema = 'public' }: Props) {
   const [data, setData] = useState<QueryResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [globalFilter, setGlobalFilter] = useState('')
+
+  const [page, setPage] = useQueryState(
+    'page',
+    parseAsInteger.withDefault(1).withOptions({ clearOnDefault: true, shallow: false }),
+  )
+  const [perPage, setPerPage] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(20).withOptions({ clearOnDefault: true, shallow: false }),
+  )
+  const [sortQuery, setSortQuery] = useQueryState(
+    'sort',
+    parseAsString.withDefault('').withOptions({ clearOnDefault: true, shallow: false }),
+  )
+  const [filtersQuery, setFiltersQuery] = useQueryState(
+    'filters',
+    parseAsString.withDefault('').withOptions({ clearOnDefault: true, shallow: false }),
+  )
+  const [joinQuery, setJoinQuery] = useQueryState(
+    'join',
+    parseAsString.withDefault('and').withOptions({ clearOnDefault: true, shallow: false }),
+  )
+
+  const sorting = useMemo(() => {
+    if (!sortQuery) return [] as { id: string; desc: boolean }[]
+    try {
+      return JSON.parse(sortQuery) as { id: string; desc: boolean }[]
+    } catch {
+      return [] as { id: string; desc: boolean }[]
+    }
+  }, [sortQuery])
+
+  const filters: ExtendedColumnFilter<Record<string, unknown>>[] = useMemo(() => {
+    if (!filtersQuery) return []
+    try {
+      return JSON.parse(filtersQuery)
+    } catch {
+      return []
+    }
+  }, [filtersQuery])
+
+  const validFilters = useMemo(() => getValidFilters(filters), [filters])
 
   const fetchData = useCallback(async () => {
     if (!selectedTable) {
@@ -55,12 +90,25 @@ export default function DataTableViewer({ selectedTable }: Props) {
 
     const params = new URLSearchParams({
       table: selectedTable,
+      schema,
       page: String(page),
-      pageSize: String(pageSize),
+      pageSize: String(perPage),
     })
 
     if (sorting.length > 0) {
       params.set('sort', `${sorting[0].id}:${sorting[0].desc ? 'desc' : 'asc'}`)
+    }
+
+    if (validFilters.length > 0) {
+      const filterObj: Record<string, string> = {}
+      for (const f of validFilters) {
+        if (f.operator === 'iLike' && typeof f.value === 'string') {
+          filterObj[f.id] = f.value
+        }
+      }
+      if (Object.keys(filterObj).length > 0) {
+        params.set('filters', JSON.stringify(filterObj))
+      }
     }
 
     try {
@@ -76,17 +124,20 @@ export default function DataTableViewer({ selectedTable }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [selectedTable, page, pageSize, sorting])
+  }, [selectedTable, schema, page, perPage, sorting, validFilters])
 
   useEffect(() => {
     fetchData()
   }, [fetchData])
 
   useEffect(() => {
-    setPage(1)
-    setSorting([])
-    setGlobalFilter('')
-  }, [selectedTable])
+    if (selectedTable) {
+      setPage(1)
+      setSortQuery('')
+      setFiltersQuery('')
+      setJoinQuery('and')
+    }
+  }, [selectedTable, setPage, setSortQuery, setFiltersQuery, setJoinQuery])
 
   const columns = useMemo(() => {
     if (!data?.columns) return []
@@ -94,268 +145,139 @@ export default function DataTableViewer({ selectedTable }: Props) {
 
     return data.columns.map((col) =>
       colHelper.accessor(col.name, {
-        header: ({ column }) => (
-          <button
-            className="flex items-center gap-1 text-[11px] font-semibold"
-            onClick={() => column.toggleSorting()}
-          >
-            <span className="truncate max-w-[120px]">{col.name}</span>
-            {column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="w-3 h-3" />
-            ) : column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="w-3 h-3" />
-            ) : (
-              <ArrowUpDown className="w-3 h-3 opacity-30" />
-            )}
-          </button>
-        ),
+        id: col.name,
+        header: () => <span className="text-xs font-semibold">{col.name}</span>,
         cell: ({ getValue }) => {
           const val = getValue()
           if (val === null || val === undefined)
-            return <span style={{ color: '#555', fontStyle: 'italic' }}>null</span>
+            return <span className="text-muted-foreground/40 italic text-xs">null</span>
           if (typeof val === 'boolean')
             return (
-              <span
-                className="text-[10px] px-1 rounded"
-                style={{
-                  background: val ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                  color: val ? '#4ade80' : '#f87171',
-                }}
+              <Badge
+                variant={val ? 'default' : 'secondary'}
+                className="uppercase"
               >
                 {String(val)}
-              </span>
+              </Badge>
             )
           if (typeof val === 'object')
             return (
-              <span
-                className="text-[10px] font-mono"
-                style={{ color: '#818cf8' }}
-              >
+              <span className="font-mono text-primary/80 truncate block max-w-[200px] text-[11px]">
                 {JSON.stringify(val).slice(0, 80)}
               </span>
             )
           return (
-            <span className="text-[12px] font-mono truncate block max-w-[200px]">
+            <span className="font-mono truncate block max-w-[250px] text-foreground/90 text-[12px]">
               {String(val)}
             </span>
           )
         },
-        meta: { type: col.type },
+        enableColumnFilter: true,
+        enableSorting: true,
+        enableHiding: true,
+        meta: {
+          label: col.name,
+          variant: 'text' as const,
+          placeholder: `Filter ${col.name}...`,
+        },
       }),
-    )
+    ) as ColumnDef<Record<string, unknown>, unknown>[]
   }, [data?.columns])
 
   const table = useReactTable({
     data: data?.rows ?? [],
     columns,
-    state: { sorting, globalFilter },
+    state: {
+      sorting,
+      pagination: { pageIndex: page - 1, pageSize: perPage },
+      columnFilters: validFilters.map((f) => ({ id: f.id, value: f.value })),
+    },
     onSortingChange: (updater) => {
       const newSorting = typeof updater === 'function' ? updater(sorting) : updater
-      setSorting(newSorting)
+      setSortQuery(newSorting.length > 0 ? JSON.stringify(newSorting) : '')
       setPage(1)
     },
-    onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: (updater) => {
+      const newFilters = typeof updater === 'function' ? updater([]) : updater
+      // columnFilters from tanstack are used only for display; actual filter state is in URL
+    },
+    onPaginationChange: (updater) => {
+      const newPagination =
+        typeof updater === 'function'
+          ? updater({ pageIndex: page - 1, pageSize: perPage })
+          : updater
+      setPage(newPagination.pageIndex + 1)
+      setPerPage(newPagination.pageSize)
+    },
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    pageCount: data ? Math.ceil(data.total / pageSize) : 0,
+    manualSorting: true,
+    pageCount: data ? Math.ceil(data.total / perPage) : 0,
+    meta: {
+      queryKeys: {
+        page: 'page',
+        perPage: 'perPage',
+        sort: 'sort',
+        filters: 'filters',
+        joinOperator: 'join',
+      },
+    },
   })
-
-  const totalPages = data ? Math.ceil(data.total / pageSize) : 0
 
   if (!selectedTable) {
     return (
-      <div
-        className="flex items-center justify-center h-full font-mono"
-        style={{ color: '#7c7c8a' }}
-      >
-        Select a table from the sidebar to view its data
+      <div className="flex items-center justify-center h-full font-mono text-muted-foreground/60 text-sm italic">
+        Select a table to explore data
+      </div>
+    )
+  }
+
+  if (loading && !data) {
+    return (
+      <DataTableSkeleton
+        columnCount={5}
+        rowCount={10}
+        filterCount={2}
+      />
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-sm font-mono text-destructive bg-destructive/5 rounded-lg m-4 border border-destructive/10">
+        <div className="font-bold mb-1 uppercase tracking-wider text-[10px]">
+          Error loading data
+        </div>
+        {error}
       </div>
     )
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Filter bar */}
-      <div
-        className="px-4 py-2 flex items-center gap-3"
-        style={{ borderBottom: '1px solid #2a2a35' }}
-      >
-        <div className="relative flex-1 max-w-xs">
-          <Search
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
-            style={{ color: '#7c7c8a' }}
-          />
-          <input
-            type="text"
-            placeholder="Filter rows..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 rounded-lg text-[12px] outline-none"
-            style={{ background: '#0e0e12', border: '1px solid #2a2a35', color: '#e2e2e8' }}
-          />
-        </div>
-        {data && (
-          <div
-            className="flex items-center gap-3 text-[10px]"
-            style={{ color: '#7c7c8a' }}
-          >
-            <span>{data.total} rows</span>
-            <span>{data.columns.length} columns</span>
-          </div>
-        )}
-      </div>
-
-      {/* Table */}
-      <div className="flex-1 overflow-auto">
-        {loading ? (
-          <div className="flex items-center justify-center h-32 gap-2">
-            <Loader2
-              className="w-4 h-4 animate-spin"
-              style={{ color: '#6366f1' }}
-            />
-            <span
-              className="text-[12px]"
-              style={{ color: '#7c7c8a' }}
-            >
-              Loading...
-            </span>
-          </div>
-        ) : error ? (
-          <div
-            className="p-4 text-[12px] font-mono"
-            style={{ color: '#ef4444' }}
-          >
-            {error}
-          </div>
-        ) : data ? (
-          <table className="w-full text-left border-collapse">
-            <thead>
-              {table.getHeaderGroups().map((hg) => (
-                <tr key={hg.id}>
-                  {hg.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="sticky top-0 px-3 py-2 whitespace-nowrap"
-                      style={{
-                        background: '#1e1e2e',
-                        borderBottom: '1px solid #2a2a35',
-                        color: '#94a3b8',
-                        fontSize: 11,
-                      }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-white/[0.02]"
-                  style={{ borderBottom: '1px solid #1e1e2e' }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="px-3 py-1.5 whitespace-nowrap"
-                      style={{ borderBottom: '1px solid #1e1e2e', color: '#e2e2e8' }}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : null}
-      </div>
-
-      {/* Pagination */}
-      {data && totalPages > 1 && (
-        <div
-          className="px-4 py-2 flex items-center gap-1"
-          style={{ borderTop: '1px solid #2a2a35' }}
-        >
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value))
-              setPage(1)
-            }}
-            className="text-[11px] px-2 py-1 rounded outline-none"
-            style={{ background: '#0e0e12', border: '1px solid #2a2a35', color: '#e2e2e8' }}
-          >
-            {[10, 20, 50, 100].map((s) => (
-              <option
-                key={s}
-                value={s}
-              >
-                {s} / page
-              </option>
-            ))}
-          </select>
-          <div className="flex-1" />
-          <div className="flex items-center gap-0.5">
-            <PgBtn
-              onClick={() => setPage(1)}
-              disabled={page <= 1}
-            >
-              <ChevronsLeft className="w-3.5 h-3.5" />
-            </PgBtn>
-            <PgBtn
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </PgBtn>
-            <span
-              className="text-[10px] px-2 font-mono"
-              style={{ color: '#7c7c8a' }}
-            >
-              {page} / {totalPages}
-            </span>
-            <PgBtn
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-            </PgBtn>
-            <PgBtn
-              onClick={() => setPage(totalPages)}
-              disabled={page >= totalPages}
-            >
-              <ChevronsRight className="w-3.5 h-3.5" />
-            </PgBtn>
-          </div>
+    <div className="w-full flex flex-col bg-background min-w-0">
+      <DataTable table={table}>
+        <DataTableAdvancedToolbar table={table}>
+          <DataTableFilterList table={table} />
+          <DataTableSortList table={table} />
+          {data && (
+            <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 ml-auto mr-2">
+              <div className="flex items-center gap-1.5 p-2 px-2 rounded-md bg-muted/40 border">
+                <span className="text-foreground">{data.total}</span>
+                <span>rows</span>
+              </div>
+              <div className="flex items-center gap-1.5 p-2 px-2 rounded-md bg-muted/40 border">
+                <span className="text-foreground">{data.columns.length}</span>
+                <span>columns</span>
+              </div>
+            </div>
+          )}
+        </DataTableAdvancedToolbar>
+      </DataTable>
+      {loading && data && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>
       )}
     </div>
-  )
-}
-
-function PgBtn({
-  children,
-  onClick,
-  disabled,
-}: {
-  children: React.ReactNode
-  onClick: () => void
-  disabled?: boolean
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="p-1.5 rounded transition-colors disabled:opacity-30"
-      style={{ color: '#7c7c8a' }}
-    >
-      {children}
-    </button>
   )
 }

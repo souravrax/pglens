@@ -53,7 +53,7 @@ export function schemaToGraph(schema: Schema): {
     id: `${rel.fromTable}.${rel.fromColumn}->${rel.toTable}.${rel.toColumn}`,
     source: rel.fromTable,
     target: rel.toTable,
-    type: 'bezier',
+    type: 'default',
     animated: false,
     style: { stroke: '#4a4a6a', strokeWidth: 1.5 },
     markerEnd: 'arrowclosed',

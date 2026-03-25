@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect, useCallback, useState, useRef } from 'react'
+import { useMemo, useEffect, useCallback, useState } from 'react'
 import { useStore } from 'zustand'
 import ReactFlow, {
   Background,
@@ -10,25 +10,37 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   useReactFlow,
-  type NodeTypes,
+  BackgroundVariant,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import TableNode from './TableNode'
 import { schemaStore } from '@/lib/store'
 import { schemaToGraph, applyElkLayout, type TableNodeData } from '@/lib/transform'
-import { X, Key, Link, ArrowRight, Hash, List } from 'lucide-react'
 
-const nodeTypes: NodeTypes = {
-  table: TableNode,
-}
+import { X, Key, Link, ArrowRight, Hash, List, Maximize2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 
-const OUTGOING_COLOR = '#22d3ee'
-const INCOMING_COLOR = '#f472b6'
-const BOTH_COLOR = '#a78bfa'
-const DEFAULT_EDGE = '#4a4a6a'
-const DIMMED_OPACITY = 0.12
+const OUTGOING_COLOR = 'oklch(0.707 0.165 254.624)' // cyan-400
+const INCOMING_COLOR = 'oklch(0.704 0.191 22.216)' // pink-400
+const BOTH_COLOR = 'var(--primary)'
+const DEFAULT_EDGE = 'oklch(0.556 0 0 / 40%)'
+const DIMMED_OPACITY = 0.1
 
 function FlowGraph() {
+  const nodeTypes = useMemo(
+    () => ({
+      table: TableNode,
+    }),
+    [],
+  )
+
+  const edgeTypes = useMemo(() => ({}), [])
+
+  const fitViewOptions = useMemo(() => ({ padding: 0.15 }), [])
+
   const { fitView } = useReactFlow()
   const schema = useStore(schemaStore, (s) => s.schema)
   const selected = useStore(schemaStore, (s) => s.selectedTable)
@@ -73,10 +85,10 @@ function FlowGraph() {
     setEdges((eds) =>
       eds.map((e) => {
         if (e.source === selected) {
-          return { ...e, style: { stroke: OUTGOING_COLOR, opacity: 1, strokeWidth: 2.5 } }
+          return { ...e, style: { stroke: OUTGOING_COLOR, opacity: 1, strokeWidth: 3 } }
         }
         if (e.target === selected) {
-          return { ...e, style: { stroke: INCOMING_COLOR, opacity: 1, strokeWidth: 2.5 } }
+          return { ...e, style: { stroke: INCOMING_COLOR, opacity: 1, strokeWidth: 3 } }
         }
         return { ...e, style: { stroke: DEFAULT_EDGE, opacity: DIMMED_OPACITY, strokeWidth: 1 } }
       }),
@@ -102,24 +114,25 @@ function FlowGraph() {
   const outgoingRels = selectedRelations.filter((r) => r.fromTable === selected)
   const incomingRels = selectedRelations.filter((r) => r.toTable === selected)
 
-  // Stable minimap color function — avoids re-creating on every render
-  const minimapNodeColor = useRef<(node: { id: string }) => string>(() => '#4a4a6a')
-  minimapNodeColor.current = (node: { id: string }) => {
-    if (!selected) return '#4a4a6a'
-    if (!schema) return '#4a4a6a'
-    if (node.id === selected) return BOTH_COLOR
-    const isOut = schema.relations.some((r) => r.fromTable === selected && r.toTable === node.id)
-    const isIn = schema.relations.some((r) => r.toTable === selected && r.fromTable === node.id)
-    if (isOut && isIn) return BOTH_COLOR
-    if (isOut) return OUTGOING_COLOR
-    if (isIn) return INCOMING_COLOR
-    return '#1e1e2e'
-  }
+  // Minimap color function
+  const minimapNodeColor = useCallback(
+    (node: { id: string }) => {
+      if (!selected || !schema) return 'oklch(0.556 0 0 / 20%)'
+      if (node.id === selected) return BOTH_COLOR
+      const isOut = schema.relations.some((r) => r.fromTable === selected && r.toTable === node.id)
+      const isIn = schema.relations.some((r) => r.toTable === selected && r.fromTable === node.id)
+      if (isOut && isIn) return BOTH_COLOR
+      if (isOut) return OUTGOING_COLOR
+      if (isIn) return INCOMING_COLOR
+      return 'oklch(0.269 0 0)'
+    },
+    [selected, schema],
+  )
 
   if (!schema) return null
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+    <div className="w-full h-full relative bg-background overflow-hidden">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -128,8 +141,9 @@ function FlowGraph() {
         onNodeClick={(_, node) => setSelectedTable(node.id)}
         onPaneClick={() => setSelectedTable(null)}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
-        fitViewOptions={{ padding: 0.15 }}
+        fitViewOptions={fitViewOptions}
         minZoom={0.05}
         maxZoom={2}
         onlyRenderVisibleElements
@@ -137,318 +151,269 @@ function FlowGraph() {
         attributionPosition="bottom-right"
       >
         <Background
-          color="#1e1e2e"
+          variant={BackgroundVariant.Dots}
+          color="var(--color-foreground)"
           gap={32}
           size={1}
         />
-        <Controls showInteractive={false} />
+        <Controls
+          showInteractive={false}
+          className="bg-card! border-border! fill-foreground!"
+        />
         <MiniMap
-          nodeColor={(node) => minimapNodeColor.current(node)}
-          maskColor="rgba(0,0,0,0.8)"
-          style={{ opacity: 0.8 }}
+          nodeColor={minimapNodeColor}
+          maskColor="rgba(0,0,0,0.4)"
+          className="bg-card! border-border! rounded-lg! overflow-hidden"
         />
       </ReactFlow>
 
-      {/* Reset / Fit View button */}
-      <button
-        onClick={handleFitView}
-        className="absolute bottom-4 right-4 flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-mono cursor-pointer transition-opacity hover:opacity-100"
-        style={{
-          background: 'rgba(14,14,18,0.9)',
-          border: '1px solid #2a2a35',
-          color: '#7c7c8a',
-          backdropFilter: 'blur(8px)',
-          opacity: 0.7,
-        }}
-        title="Reset view"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-        </svg>
-        Fit View
-      </button>
+      {/* Action shortcuts */}
+      <div className="absolute top-4 left-4 flex gap-2 z-10">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-9 w-9 shadow-lg bg-card/80 backdrop-blur"
+              onClick={handleFitView}
+            >
+              <Maximize2 className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <p>Fit View</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
 
       {/* Legend */}
       {selected && (
-        <div
-          className="absolute bottom-4 left-4 flex gap-4 text-[11px] font-mono px-4 py-2.5 rounded-lg"
-          style={{
-            background: 'rgba(14,14,18,0.92)',
-            border: '1px solid #2a2a35',
-            backdropFilter: 'blur(8px)',
-          }}
-        >
-          <span style={{ color: OUTGOING_COLOR }}>● Outgoing (FK refs)</span>
-          <span style={{ color: INCOMING_COLOR }}>● Incoming (referenced by)</span>
-          <span style={{ color: BOTH_COLOR }}>● Both</span>
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-5 px-4 py-2.5 rounded-full border bg-card/90 backdrop-blur shadow-xl text-[10px] font-bold uppercase tracking-wider z-10 transition-all animate-in fade-in slide-in-from-bottom-2">
+          <div className="flex items-center gap-2">
+            <Badge
+              className="w-2 h-2 rounded-full p-0 border-0"
+              style={{ background: OUTGOING_COLOR }}
+            />
+            <span className="text-muted-foreground">Outgoing</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge
+              className="w-2 h-2 rounded-full p-0 border-0"
+              style={{ background: INCOMING_COLOR }}
+            />
+            <span className="text-muted-foreground">Incoming</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="default"
+              className="w-2 h-2 rounded-full p-0 border-0 bg-primary"
+            />
+            <span className="text-muted-foreground font-bold">Both</span>
+          </div>
         </div>
       )}
 
       {/* Selected table info panel */}
       {selectedTable && (
-        <div
-          className="absolute top-4 right-4 w-[320px] max-h-[calc(100%-80px)] overflow-y-auto rounded-xl font-mono"
-          style={{
-            background: 'rgba(14,14,18,0.95)',
-            border: '1px solid #2a2a35',
-            backdropFilter: 'blur(12px)',
-          }}
-        >
+        <div className="absolute top-4 right-4 w-80 max-h-[calc(100%-80px)] flex flex-col rounded-xl border bg-card/95 backdrop-blur-xl shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-right-4">
           {/* Header */}
-          <div
-            className="flex items-center justify-between px-4 py-3"
-            style={{ borderBottom: '1px solid #2a2a35' }}
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="text-sm font-bold"
-                style={{ color: '#e2e2e8' }}
-              >
+          <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/20 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <span className="text-sm font-bold tracking-tight text-foreground truncate max-w-[180px]">
                 {selectedTable.name}
               </span>
-              <span
-                className="text-[10px] px-1.5 py-0.5 rounded-full"
-                style={{ background: '#2a2a35', color: '#7c7c8a' }}
+              <Badge
+                variant="outline"
+                className="bg-background/50"
               >
-                {selectedTable.columns.length} cols
-              </span>
+                {selectedTable.columns.length}
+              </Badge>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-md"
               onClick={() => setSelectedTable(null)}
-              className="p-1 rounded transition-colors hover:bg-white/10 cursor-pointer"
-              style={{ color: '#7c7c8a' }}
             >
-              <X className="w-3.5 h-3.5" />
-            </button>
+              <X className="w-4 h-4 text-muted-foreground" />
+            </Button>
           </div>
 
-          {/* Primary keys */}
-          {selectedTable.primaryKeys.length > 0 && (
-            <div
-              className="px-4 py-2.5"
-              style={{ borderBottom: '1px solid #2a2a35' }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Key
-                  className="w-3 h-3"
-                  style={{ color: '#f59e0b' }}
-                />
-                <span
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: '#f59e0b' }}
-                >
-                  Primary Key
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {selectedTable.primaryKeys.map((pk) => (
-                  <span
-                    key={pk}
-                    className="text-[11px] px-2 py-0.5 rounded"
-                    style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}
-                  >
-                    {pk}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Indexes */}
-          {selectedTable.indexes.length > 0 && (
-            <div
-              className="px-4 py-2.5"
-              style={{ borderBottom: '1px solid #2a2a35' }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Hash
-                  className="w-3 h-3"
-                  style={{ color: '#818cf8' }}
-                />
-                <span
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: '#818cf8' }}
-                >
-                  Indexes ({selectedTable.indexes.length})
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                {selectedTable.indexes.map((idx) => (
-                  <div
-                    key={idx.name}
-                    className="flex items-center gap-2"
-                  >
-                    <span
-                      className="text-[10px] px-1.5 py-0.5 rounded"
-                      style={{
-                        background: idx.unique ? 'rgba(34,197,94,0.1)' : 'rgba(99,102,241,0.1)',
-                        color: idx.unique ? '#4ade80' : '#818cf8',
-                      }}
-                    >
-                      {idx.unique ? 'UNIQUE' : 'IDX'}
-                    </span>
-                    <span
-                      className="text-[11px] truncate"
-                      style={{ color: '#a5b4fc' }}
-                    >
-                      ({idx.columns.join(', ')})
+          <div className="flex-1 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-muted-foreground/20">
+            <div className="flex flex-col">
+              {/* Primary keys */}
+              {selectedTable.primaryKeys.length > 0 && (
+                <div className="px-4 py-3 border-b">
+                  <div className="flex items-center gap-2 mb-2 text-amber-500">
+                    <Key className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Primary Keys
                     </span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Outgoing FKs */}
-          {outgoingRels.length > 0 && (
-            <div
-              className="px-4 py-2.5"
-              style={{ borderBottom: '1px solid #2a2a35' }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <ArrowRight
-                  className="w-3 h-3"
-                  style={{ color: OUTGOING_COLOR }}
-                />
-                <span
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: OUTGOING_COLOR }}
-                >
-                  Outgoing FKs ({outgoingRels.length})
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                {outgoingRels.map((rel) => (
-                  <div
-                    key={rel.constraintName}
-                    className="flex items-center gap-1.5 text-[11px]"
-                  >
-                    <span style={{ color: '#e2e2e8' }}>{rel.fromColumn}</span>
-                    <span style={{ color: '#555' }}>→</span>
-                    <span style={{ color: '#a5b4fc' }}>
-                      {rel.toTable}.{rel.toColumn}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Incoming FKs */}
-          {incomingRels.length > 0 && (
-            <div
-              className="px-4 py-2.5"
-              style={{ borderBottom: '1px solid #2a2a35' }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Link
-                  className="w-3 h-3"
-                  style={{ color: INCOMING_COLOR }}
-                />
-                <span
-                  className="text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: INCOMING_COLOR }}
-                >
-                  Referenced by ({incomingRels.length})
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                {incomingRels.map((rel) => (
-                  <div
-                    key={rel.constraintName}
-                    className="flex items-center gap-1.5 text-[11px]"
-                  >
-                    <span style={{ color: '#a5b4fc' }}>
-                      {rel.fromTable}.{rel.fromColumn}
-                    </span>
-                    <span style={{ color: '#555' }}>→</span>
-                    <span style={{ color: '#e2e2e8' }}>{rel.toColumn}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Columns */}
-          <div className="px-4 py-2.5">
-            <div className="flex items-center gap-1.5 mb-2">
-              <List
-                className="w-3 h-3"
-                style={{ color: '#7c7c8a' }}
-              />
-              <span
-                className="text-[10px] font-bold uppercase tracking-wider"
-                style={{ color: '#7c7c8a' }}
-              >
-                Columns
-              </span>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              {selectedTable.columns.map((col) => {
-                const isPK = selectedTable.primaryKeys.includes(col.name)
-                const fkRel = schema.relations.find(
-                  (r) => r.fromTable === selectedTable.name && r.fromColumn === col.name,
-                )
-                const isIdx = selectedTable.indexes.some((idx) => idx.columns.includes(col.name))
-
-                return (
-                  <div
-                    key={col.name}
-                    className="flex items-center gap-2 py-1 px-2 rounded text-[11px]"
-                    style={{
-                      background: isPK
-                        ? 'rgba(245,158,11,0.06)'
-                        : fkRel
-                          ? 'rgba(99,102,241,0.06)'
-                          : 'transparent',
-                    }}
-                  >
-                    <span className="w-5 text-center flex-shrink-0">
-                      {isPK ? (
-                        <span style={{ color: '#f59e0b', fontSize: 9 }}>PK</span>
-                      ) : fkRel ? (
-                        <span style={{ color: '#818cf8', fontSize: 9 }}>FK</span>
-                      ) : null}
-                    </span>
-                    <span
-                      className="flex-1 truncate"
-                      style={{
-                        color: isPK ? '#f59e0b' : fkRel ? '#a5b4fc' : '#e2e2e8',
-                        fontWeight: isPK || fkRel ? 600 : 400,
-                      }}
-                    >
-                      {col.name}
-                    </span>
-                    <span style={{ color: '#555', fontSize: 10 }}>{col.type}</span>
-                    {col.nullable && (
-                      <span
-                        className="text-[9px] px-1 rounded"
-                        style={{ background: '#2a2a35', color: '#7c7c8a' }}
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedTable.primaryKeys.map((pk) => (
+                      <Badge
+                        key={pk}
+                        className="font-mono"
                       >
-                        null
-                      </span>
+                        {pk}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Indexes */}
+              {selectedTable.indexes.length > 0 && (
+                <div className="px-4 py-3 border-b">
+                  <div className="flex items-center gap-2 mb-2 text-primary">
+                    <Hash className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Indexes ({selectedTable.indexes.length})
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {selectedTable.indexes.map((idx) => (
+                      <div
+                        key={idx.name}
+                        className="flex items-center gap-2 text-xs"
+                      >
+                        <Badge variant={idx.unique ? 'default' : 'secondary'}>
+                          {idx.unique ? 'Unique' : 'Idx'}
+                        </Badge>
+                        <span className="text-muted-foreground font-mono truncate">
+                          ({idx.columns.join(', ')})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Relations */}
+              {(outgoingRels.length > 0 || incomingRels.length > 0) && (
+                <div className="px-4 py-3 border-b bg-muted/10">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Link className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Relations
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {outgoingRels.length > 0 && (
+                      <div className="space-y-1.5">
+                        <div className="text-[9px] font-bold text-cyan-500 uppercase flex items-center gap-1.5 mb-1">
+                          <ArrowRight className="w-2.5 h-2.5" /> Outgoing
+                        </div>
+                        {outgoingRels.map((rel) => (
+                          <div
+                            key={rel.constraintName}
+                            className="flex flex-col gap-0.5 rounded-md p-1.5 bg-background border border-border/50"
+                          >
+                            <div className="text-[10px] font-mono font-bold text-foreground flex items-center gap-1.5">
+                              {rel.fromColumn}{' '}
+                              <span className="text-muted-foreground font-normal">→</span>
+                            </div>
+                            <div className="text-[10px] font-mono text-primary truncate pl-4">
+                              {rel.toTable}.{rel.toColumn}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                    {isIdx && !isPK && (
-                      <span
-                        className="text-[9px] px-1 rounded"
-                        style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}
-                      >
-                        idx
-                      </span>
+
+                    {incomingRels.length > 0 && (
+                      <div className="space-y-1.5">
+                        <div className="text-[9px] font-bold text-pink-500 uppercase flex items-center gap-1.5 mb-1">
+                          <Link className="w-2.5 h-2.5" /> Incoming
+                        </div>
+                        {incomingRels.map((rel) => (
+                          <div
+                            key={rel.constraintName}
+                            className="flex flex-col gap-0.5 rounded-md p-1.5 bg-background border border-border/50"
+                          >
+                            <div className="text-[10px] font-mono text-primary truncate flex items-center gap-1.5">
+                              {rel.fromTable}.{rel.fromColumn}{' '}
+                              <span className="text-muted-foreground font-normal">→</span>
+                            </div>
+                            <div className="text-[10px] font-mono font-bold text-foreground pl-4">
+                              {rel.toColumn}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-                )
-              })}
+                </div>
+              )}
+
+              {/* All Columns List */}
+              <div className="px-4 py-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <List className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      Columns
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1 font-mono">
+                  {selectedTable.columns.map((col) => {
+                    const isPK = selectedTable.primaryKeys.includes(col.name)
+                    const fkRel = schema.relations.find(
+                      (r) => r.fromTable === selectedTable.name && r.fromColumn === col.name,
+                    )
+                    const isIdx = selectedTable.indexes.some((idx) =>
+                      idx.columns.includes(col.name),
+                    )
+
+                    return (
+                      <div
+                        key={col.name}
+                        className={cn(
+                          'flex items-center gap-2.5 py-1.5 px-2 rounded-md group transition-colors',
+                          isPK ? 'bg-amber-500/5' : fkRel ? 'bg-primary/5' : 'hover:bg-muted/50',
+                        )}
+                      >
+                        <div className="w-5 flex justify-center shrink-0">
+                          {isPK ? (
+                            <span className="text-[9px] font-bold text-amber-500">PK</span>
+                          ) : fkRel ? (
+                            <span className="text-[9px] font-bold text-primary">FK</span>
+                          ) : null}
+                        </div>
+                        <span
+                          className={cn(
+                            'text-[11px] flex-1 truncate',
+                            isPK
+                              ? 'text-amber-500 font-bold'
+                              : fkRel
+                                ? 'text-primary font-bold'
+                                : 'text-foreground/80 font-medium',
+                          )}
+                        >
+                          {col.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/40 italic">
+                          {col.type}
+                        </span>
+                        {col.nullable && (
+                          <span className="text-[8px] px-1 rounded bg-muted text-muted-foreground/50 uppercase font-bold">
+                            null
+                          </span>
+                        )}
+                        {isIdx && !isPK && (
+                          <span className="text-[8px] px-1 rounded bg-primary/10 text-primary uppercase font-bold">
+                            idx
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>

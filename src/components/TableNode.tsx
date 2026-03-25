@@ -5,24 +5,14 @@ import { useStore } from 'zustand'
 import { Handle, Position, type NodeProps } from 'reactflow'
 import type { TableNodeData } from '@/lib/transform'
 import { schemaStore } from '@/lib/store'
+import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 
 const HIGHLIGHT_STYLES = {
-  selected: {
-    border: '2px solid #a78bfa',
-    boxShadow: '0 0 20px #a78bfa40',
-  },
-  outgoing: {
-    border: '2px solid #22d3ee',
-    boxShadow: '0 0 12px #22d3ee25',
-  },
-  incoming: {
-    border: '2px solid #f472b6',
-    boxShadow: '0 0 12px #f472b625',
-  },
-  both: {
-    border: '2px solid #a78bfa',
-    boxShadow: '0 0 12px #a78bfa25',
-  },
+  selected: "ring-2 ring-primary ring-offset-2 shadow-[0_0_20px_rgba(var(--primary),0.3)]",
+  outgoing: "ring-2 ring-cyan-500 ring-offset-2 shadow-[0_0_12px_rgba(6,182,212,0.2)]",
+  incoming: "ring-2 ring-pink-500 ring-offset-2 shadow-[0_0_12px_rgba(236,72,153,0.2)]",
+  both: "ring-2 ring-primary ring-offset-2 shadow-[0_0_12px_rgba(var(--primary),0.2)]",
 } as const
 
 function TableNode({ data, id }: NodeProps<TableNodeData>) {
@@ -35,7 +25,7 @@ function TableNode({ data, id }: NodeProps<TableNodeData>) {
   const getFK = (col: string) => foreignKeys.find((fk) => fk.column === col)
 
   // Compute highlight directly — no setNodes call needed
-  let highlight: 'selected' | 'outgoing' | 'incoming' | 'both' | 'dimmed' | null = null
+  let highlight: keyof typeof HIGHLIGHT_STYLES | 'dimmed' | null = null
   if (selected && relations) {
     if (id === selected) {
       highlight = 'selected'
@@ -50,42 +40,29 @@ function TableNode({ data, id }: NodeProps<TableNodeData>) {
   }
 
   const isDimmed = highlight === 'dimmed'
-  const highlightStyle =
-    highlight && highlight !== 'dimmed' ? HIGHLIGHT_STYLES[highlight] : undefined
 
   return (
     <div
-      className="min-w-[280px] rounded-xl shadow-2xl overflow-hidden"
-      style={{
-        background: '#18181f',
-        border: highlightStyle?.border ?? '1px solid #2a2a35',
-        boxShadow: highlightStyle?.boxShadow ?? 'none',
-        opacity: isDimmed ? 0.12 : 1,
-      }}
+      className={cn(
+        "min-w-[280px] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 bg-card border",
+        highlight && highlight !== 'dimmed' ? HIGHLIGHT_STYLES[highlight] : "border-border",
+        isDimmed && "opacity-20 grayscale-[0.5]"
+      )}
     >
       <Handle
         type="target"
         position={Position.Left}
-        style={{ opacity: 0 }}
+        className="opacity-0"
       />
 
       {/* Header */}
-      <div
-        className="px-4 py-3 flex items-center gap-2"
-        style={{ background: '#1e1e2e', borderBottom: '1px solid #2a2a35' }}
-      >
-        <span
-          className="text-sm font-bold tracking-wide"
-          style={{ color: '#e2e2e8' }}
-        >
+      <div className="px-4 py-3 flex items-center justify-between bg-muted/30 border-b">
+        <span className="text-sm font-bold tracking-tight text-foreground">
           {table.name}
         </span>
-        <span
-          className="ml-auto text-[10px] px-2 py-0.5 rounded-full"
-          style={{ background: '#2a2a35', color: '#7c7c8a' }}
-        >
+        <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-medium bg-background/50">
           {table.columns.length} cols
-        </span>
+        </Badge>
       </div>
 
       {/* Columns */}
@@ -98,77 +75,56 @@ function TableNode({ data, id }: NodeProps<TableNodeData>) {
           return (
             <div
               key={col.name}
-              className="px-4 py-1.5 flex items-center gap-2 text-[13px]"
-              style={{
-                background: pk
-                  ? 'rgba(245,158,11,0.06)'
-                  : fk
-                    ? 'rgba(99,102,241,0.06)'
-                    : 'transparent',
-              }}
+              className={cn(
+                "px-4 py-2 flex items-center gap-3 text-[13px] relative group",
+                pk && "bg-amber-500/5",
+                fk && "bg-primary/5"
+              )}
             >
-              {/* Key badge */}
-              <span className="w-5 text-center flex-shrink-0">
+              {/* Key identifier */}
+              <div className="w-5 flex justify-center shrink-0">
                 {pk ? (
-                  <span style={{ color: '#f59e0b', fontSize: 10 }}>PK</span>
+                  <Badge variant="pk">PK</Badge>
                 ) : fk ? (
-                  <span style={{ color: '#818cf8', fontSize: 10 }}>FK</span>
-                ) : (
-                  <span> </span>
-                )}
-              </span>
+                  <Badge variant="fk">FK</Badge>
+                ) : null}
+              </div>
 
               {/* Column name */}
               <span
-                className="font-mono flex-1 truncate"
-                style={{
-                  color: pk ? '#f59e0b' : fk ? '#a5b4fc' : '#e2e2e8',
-                  fontWeight: pk || fk ? 600 : 400,
-                }}
+                className={cn(
+                  "font-mono flex-1 truncate",
+                  pk ? "text-amber-500 font-bold" : fk ? "text-primary font-bold" : "text-foreground/80"
+                )}
               >
                 {col.name}
               </span>
 
               {/* Type */}
-              <span
-                className="font-mono text-[11px] flex-shrink-0"
-                style={{ color: '#7c7c8a' }}
-              >
+              <span className="font-mono text-[11px] text-muted-foreground/60">
                 {col.type}
               </span>
 
-              {/* Badges */}
-              <div className="flex gap-1 flex-shrink-0">
+              {/* Status Badges */}
+              <div className="flex gap-1.5 ml-1">
                 {col.nullable && (
-                  <span
-                    className="text-[9px] px-1 rounded"
-                    style={{ background: '#2a2a35', color: '#7c7c8a' }}
-                  >
+                  <span className="text-[9px] px-1 rounded bg-muted/50 text-muted-foreground/50 border border-border/20">
                     null
                   </span>
                 )}
                 {indexed && !pk && (
-                  <span
-                    className="text-[9px] px-1 rounded"
-                    style={{
-                      background: 'rgba(99,102,241,0.15)',
-                      color: '#818cf8',
-                    }}
-                  >
+                  <Badge variant="idx" className="h-4 px-1 text-[8px] font-bold">
                     idx
-                  </span>
+                  </Badge>
                 )}
                 {fk && (
-                  <span
-                    className="text-[9px] px-1 rounded"
-                    style={{
-                      background: 'rgba(99,102,241,0.15)',
-                      color: '#818cf8',
-                    }}
+                  <Badge 
+                    variant="fk" 
+                    className="h-4 px-1 text-[8px] font-mono border-primary/20"
                     title={`References ${fk.targetTable}.${fk.targetColumn}`}
                   >
                     → {fk.targetTable}
-                  </span>
+                  </Badge>
                 )}
               </div>
             </div>
@@ -179,7 +135,7 @@ function TableNode({ data, id }: NodeProps<TableNodeData>) {
       <Handle
         type="source"
         position={Position.Right}
-        style={{ opacity: 0 }}
+        className="opacity-0"
       />
     </div>
   )

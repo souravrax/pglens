@@ -1,6 +1,10 @@
 import type { Metadata } from 'next'
-import { Geist_Mono } from 'next/font/google'
+import { Geist_Mono, Geist, JetBrains_Mono, Inter, Merriweather } from 'next/font/google'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import './globals.css'
+import { cn } from '@/lib/utils'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -8,9 +12,15 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'DB Studio',
+  title: 'Database Studio',
   description: 'Interactive PostgreSQL schema visualizer and query tool',
 }
+
+import { ThemeProvider } from '@/components/theme-provider'
+
+const merriweatherHeading = Merriweather({ subsets: ['latin'], variable: '--font-heading' })
+
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
 
 export default function RootLayout({
   children,
@@ -20,9 +30,27 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistMono.variable} h-full`}
+      suppressHydrationWarning
+      className={cn(
+        'h-full',
+        geistMono.variable,
+        'font-sans',
+        inter.variable,
+        merriweatherHeading.variable,
+        'font-mono',
+        jetbrainsMono.variable,
+      )}
     >
-      <body className="h-full m-0 p-0">{children}</body>
+      <body className="h-full m-0 p-0 custom-scrollbar">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NuqsAdapter>{children}</NuqsAdapter>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

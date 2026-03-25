@@ -2,6 +2,10 @@ import { createStore } from 'zustand'
 import type { Schema } from '@/lib/extract'
 
 type SchemaStore = {
+  schemas: string[]
+  setSchemas: (schemas: string[]) => void
+  selectedSchema: string
+  setSelectedSchema: (schema: string) => void
   schema: Schema | null
   setSchema: (schema: Schema) => void
   selectedTable: string | null
@@ -11,6 +15,10 @@ type SchemaStore = {
 }
 
 export const schemaStore = createStore<SchemaStore>((set) => ({
+  schemas: [],
+  setSchemas: (schemas) => set({ schemas }),
+  selectedSchema: 'public',
+  setSelectedSchema: (schema) => set({ selectedSchema: schema, schema: null, selectedTable: null }),
   schema: null,
   setSchema: (schema) => set({ schema }),
   selectedTable: null,
