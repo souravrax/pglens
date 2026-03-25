@@ -16,6 +16,7 @@ import { DataTableFilterList } from '@/components/data-table/data-table-filter-l
 import { DataTableSortList } from '@/components/data-table/data-table-sort-list'
 import { DataTableSkeleton } from '@/components/data-table/data-table-skeleton'
 import { Badge } from '@/components/ui/badge'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getValidFilters } from '@/lib/data-table'
 import type { ExtendedColumnFilter } from '@/types/data-table'
 
@@ -160,17 +161,48 @@ export default function DataTableViewer({ selectedTable, schema = 'public' }: Pr
                 {String(val)}
               </Badge>
             )
-          if (typeof val === 'object')
+          if (typeof val === 'object') {
+            const full = JSON.stringify(val, null, 2)
+            const preview = JSON.stringify(val).slice(0, 80)
             return (
-              <span className="font-mono text-primary/80 truncate block max-w-[200px] text-[11px]">
-                {JSON.stringify(val).slice(0, 80)}
-              </span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="font-mono text-primary/80 truncate block max-w-[200px] text-[11px] cursor-pointer hover:bg-muted/60 rounded px-1 -mx-1">
+                    {preview}
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  className="w-auto max-w-[500px] max-h-[300px] overflow-auto"
+                >
+                  <pre className="font-mono text-[11px] whitespace-pre-wrap break-all text-foreground/90">
+                    {full}
+                  </pre>
+                </PopoverContent>
+              </Popover>
             )
-          return (
-            <span className="font-mono truncate block max-w-[250px] text-foreground/90 text-[12px]">
-              {String(val)}
-            </span>
-          )
+          }
+          const str = String(val)
+          if (str.length > 30) {
+            return (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="font-mono truncate block max-w-[250px] text-foreground/90 text-[12px] cursor-pointer hover:bg-muted/60 rounded px-1 -mx-1">
+                    {str}
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  className="w-auto max-w-[500px] max-h-[300px] overflow-auto"
+                >
+                  <span className="font-mono text-[12px] whitespace-pre-wrap break-all text-foreground/90">
+                    {str}
+                  </span>
+                </PopoverContent>
+              </Popover>
+            )
+          }
+          return <span className="font-mono text-foreground/90 text-[12px]">{str}</span>
         },
         enableColumnFilter: true,
         enableSorting: true,
