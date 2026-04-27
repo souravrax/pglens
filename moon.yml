@@ -26,9 +26,12 @@ tasks:
     options:
       cache: false
 
-  lint:
-    command: pnpm lint
+  format:
+    command: pnpm run format
     inputs:
-      - 'src/**/*.{ts,tsx}'
-    options:
-      cache: false
+      - '**/*'
+
+  lint:
+    command: pnpm run lint
+    inputs:
+      - '**/*'

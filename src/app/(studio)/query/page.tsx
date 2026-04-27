@@ -54,20 +54,14 @@ export default function QueryPage() {
       {/* Editor */}
       <div className="flex flex-col border-b border-border">
         <div className="flex items-center gap-2 px-4 py-2 border-b border-border/50">
-          <span className="text-[11px] font-bold tracking-wide text-foreground">
-            SQL Query
-          </span>
-          <span className="text-[10px] text-muted-foreground">
-            ⌘+Enter to run
-          </span>
+          <span className="text-[11px] font-bold tracking-wide text-foreground">SQL Query</span>
+          <span className="text-[10px] text-muted-foreground">⌘+Enter to run</span>
           <div className="flex-1" />
           <button
             onClick={run}
             disabled={loading || !sql.trim()}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors disabled:opacity-40 ${
-              loading
-                ? 'bg-primary/15 text-primary'
-                : 'bg-primary text-primary-foreground'
+              loading ? 'bg-primary/15 text-primary' : 'bg-primary text-primary-foreground'
             }`}
           >
             {loading ? (
@@ -90,11 +84,7 @@ export default function QueryPage() {
 
       {/* Results */}
       <div className="flex-1 overflow-auto">
-        {error && (
-          <div className="p-4 text-[12px] font-mono text-destructive">
-            {error}
-          </div>
-        )}
+        {error && <div className="p-4 text-[12px] font-mono text-destructive">{error}</div>}
 
         {result && (
           <>
@@ -145,9 +135,7 @@ export default function QueryPage() {
                               {String(val)}
                             </span>
                           ) : typeof val === 'object' ? (
-                            <span className="text-primary">
-                              {JSON.stringify(val).slice(0, 80)}
-                            </span>
+                            <span className="text-primary">{JSON.stringify(val).slice(0, 80)}</span>
                           ) : (
                             <span className="truncate block max-w-[250px]">{String(val)}</span>
                           )}

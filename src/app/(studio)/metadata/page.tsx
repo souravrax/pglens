@@ -70,9 +70,7 @@ export default function MetadataPage() {
   }
 
   if (error) {
-    return (
-      <div className="p-6 text-sm text-destructive font-mono">{error}</div>
-    )
+    return <div className="p-6 text-sm text-destructive font-mono">{error}</div>
   }
 
   if (!metadata) return null
@@ -119,7 +117,10 @@ export default function MetadataPage() {
               {metadata.triggers.length > 0 && (
                 <TabsTrigger value="triggers">
                   Triggers
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.triggers.length}
                   </Badge>
                 </TabsTrigger>
@@ -127,7 +128,10 @@ export default function MetadataPage() {
               {metadata.functions.length > 0 && (
                 <TabsTrigger value="functions">
                   Functions
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.functions.length}
                   </Badge>
                 </TabsTrigger>
@@ -135,7 +139,10 @@ export default function MetadataPage() {
               {metadata.views.length > 0 && (
                 <TabsTrigger value="views">
                   Views
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.views.length}
                   </Badge>
                 </TabsTrigger>
@@ -143,7 +150,10 @@ export default function MetadataPage() {
               {metadata.materializedViews.length > 0 && (
                 <TabsTrigger value="matviews">
                   Mat. Views
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.materializedViews.length}
                   </Badge>
                 </TabsTrigger>
@@ -151,7 +161,10 @@ export default function MetadataPage() {
               {metadata.sequences.length > 0 && (
                 <TabsTrigger value="sequences">
                   Sequences
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.sequences.length}
                   </Badge>
                 </TabsTrigger>
@@ -159,7 +172,10 @@ export default function MetadataPage() {
               {metadata.enums.length > 0 && (
                 <TabsTrigger value="enums">
                   Enums
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.enums.length}
                   </Badge>
                 </TabsTrigger>
@@ -167,7 +183,10 @@ export default function MetadataPage() {
               {metadata.extensions.length > 0 && (
                 <TabsTrigger value="extensions">
                   Extensions
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.extensions.length}
                   </Badge>
                 </TabsTrigger>
@@ -175,7 +194,10 @@ export default function MetadataPage() {
               {metadata.constraints.length > 0 && (
                 <TabsTrigger value="constraints">
                   Constraints
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.constraints.length}
                   </Badge>
                 </TabsTrigger>
@@ -183,7 +205,10 @@ export default function MetadataPage() {
               {metadata.rlsPolicies.length > 0 && (
                 <TabsTrigger value="policies">
                   RLS Policies
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.rlsPolicies.length}
                   </Badge>
                 </TabsTrigger>
@@ -191,7 +216,10 @@ export default function MetadataPage() {
               {metadata.grants.length > 0 && (
                 <TabsTrigger value="grants">
                   Grants
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.grants.length}
                   </Badge>
                 </TabsTrigger>
@@ -199,7 +227,10 @@ export default function MetadataPage() {
               {metadata.tableSizes.length > 0 && (
                 <TabsTrigger value="sizes">
                   Table Sizes
-                  <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+                  <Badge
+                    variant="secondary"
+                    className="ml-1 h-4 px-1 text-[10px]"
+                  >
                     {metadata.tableSizes.length}
                   </Badge>
                 </TabsTrigger>
@@ -208,7 +239,10 @@ export default function MetadataPage() {
           </div>
 
           {/* Triggers */}
-          <TabsContent value="triggers" className="flex-1 overflow-auto">
+          <TabsContent
+            value="triggers"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -246,7 +280,10 @@ export default function MetadataPage() {
           </TabsContent>
 
           {/* Functions */}
-          <TabsContent value="functions" className="flex-1 overflow-auto">
+          <TabsContent
+            value="functions"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -284,7 +321,10 @@ export default function MetadataPage() {
           </TabsContent>
 
           {/* Views */}
-          <TabsContent value="views" className="flex-1 overflow-auto">
+          <TabsContent
+            value="views"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -308,7 +348,10 @@ export default function MetadataPage() {
           </TabsContent>
 
           {/* Materialized Views */}
-          <TabsContent value="matviews" className="flex-1 overflow-auto">
+          <TabsContent
+            value="matviews"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -338,7 +381,10 @@ export default function MetadataPage() {
           </TabsContent>
 
           {/* Sequences */}
-          <TabsContent value="sequences" className="flex-1 overflow-auto">
+          <TabsContent
+            value="sequences"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -372,7 +418,10 @@ export default function MetadataPage() {
           </TabsContent>
 
           {/* Enums */}
-          <TabsContent value="enums" className="flex-1 overflow-auto">
+          <TabsContent
+            value="enums"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -386,7 +435,10 @@ export default function MetadataPage() {
                     <TableCell className="font-mono">{e.name}</TableCell>
                     <TableCell className="flex flex-wrap gap-1">
                       {e.labels.map((label) => (
-                        <Badge key={label} variant="outline">
+                        <Badge
+                          key={label}
+                          variant="outline"
+                        >
                           {label}
                         </Badge>
                       ))}
@@ -398,7 +450,10 @@ export default function MetadataPage() {
           </TabsContent>
 
           {/* Extensions */}
-          <TabsContent value="extensions" className="flex-1 overflow-auto">
+          <TabsContent
+            value="extensions"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -422,7 +477,10 @@ export default function MetadataPage() {
           </TabsContent>
 
           {/* Constraints */}
-          <TabsContent value="constraints" className="flex-1 overflow-auto">
+          <TabsContent
+            value="constraints"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -463,7 +521,10 @@ export default function MetadataPage() {
 
           {/* RLS Policies */}
           {metadata.rlsPolicies.length > 0 && (
-            <TabsContent value="policies" className="flex-1 overflow-auto">
+            <TabsContent
+              value="policies"
+              className="flex-1 overflow-auto"
+            >
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -491,7 +552,11 @@ export default function MetadataPage() {
                       </TableCell>
                       <TableCell className="flex flex-wrap gap-1">
                         {p.roles.map((role) => (
-                          <Badge key={role} variant="outline" className="font-mono text-[10px]">
+                          <Badge
+                            key={role}
+                            variant="outline"
+                            className="font-mono text-[10px]"
+                          >
                             {role}
                           </Badge>
                         ))}
@@ -511,7 +576,10 @@ export default function MetadataPage() {
 
           {/* Grants */}
           {metadata.grants.length > 0 && (
-            <TabsContent value="grants" className="flex-1 overflow-auto">
+            <TabsContent
+              value="grants"
+              className="flex-1 overflow-auto"
+            >
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -542,7 +610,10 @@ export default function MetadataPage() {
           )}
 
           {/* Table Sizes */}
-          <TabsContent value="sizes" className="flex-1 overflow-auto">
+          <TabsContent
+            value="sizes"
+            className="flex-1 overflow-auto"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -572,75 +643,80 @@ export default function MetadataPage() {
       )}
 
       {/* Code viewer dialog */}
-      <Dialog open={codePanel !== null} onOpenChange={(open) => !open && setCodePanel(null)}>
+      <Dialog
+        open={codePanel !== null}
+        onOpenChange={(open) => !open && setCodePanel(null)}
+      >
         <DialogContent className="sm:max-w-xl max-h-[80vh] overflow-y-auto">
           {codePanel && (
             <>
               <DialogHeader>
-                <DialogTitle className="font-mono">
-                  {codePanel.item.name}
-                </DialogTitle>
+                <DialogTitle className="font-mono">{codePanel.item.name}</DialogTitle>
                 <DialogDescription>
                   {codePanel.type === 'trigger' ? (
                     <span>
-                      Trigger on <span className="font-mono">{(codePanel.item as Trigger).table}</span>
-                      {' · '}{(codePanel.item as Trigger).event}
-                      {' · '}{(codePanel.item as Trigger).timing}
+                      Trigger on{' '}
+                      <span className="font-mono">{(codePanel.item as Trigger).table}</span>
+                      {' · '}
+                      {(codePanel.item as Trigger).event}
+                      {' · '}
+                      {(codePanel.item as Trigger).timing}
                     </span>
                   ) : (
                     <span>
                       Function &middot;{' '}
                       <span className="font-mono">{(codePanel.item as PgFunction).language}</span>
-                      {' · '}{(codePanel.item as PgFunction).returnType}
+                      {' · '}
+                      {(codePanel.item as PgFunction).returnType}
                     </span>
                   )}
                 </DialogDescription>
               </DialogHeader>
 
-              {codePanel.type === 'trigger' && (() => {
-                const fn = metadata.functions.find(
-                  (f) => f.name === (codePanel.item as Trigger).function,
-                )
-                return fn ? (
-                  <button
-                    className="flex items-center gap-2 rounded-md border px-3 py-2 text-left text-xs hover:bg-accent transition-colors"
-                    onClick={() => setCodePanel({ type: 'function', item: fn })}
-                  >
-                    <span className="text-muted-foreground">Executes:</span>
-                    <span className="font-mono font-medium">{fn.name}</span>
-                    <span className="text-muted-foreground">
-                      ({fn.language} &middot; returns {fn.returnType})
-                    </span>
-                  </button>
-                ) : null
-              })()}
+              {codePanel.type === 'trigger' &&
+                (() => {
+                  const fn = metadata.functions.find(
+                    (f) => f.name === (codePanel.item as Trigger).function,
+                  )
+                  return fn ? (
+                    <button
+                      className="flex items-center gap-2 rounded-md border px-3 py-2 text-left text-xs hover:bg-accent transition-colors"
+                      onClick={() => setCodePanel({ type: 'function', item: fn })}
+                    >
+                      <span className="text-muted-foreground">Executes:</span>
+                      <span className="font-mono font-medium">{fn.name}</span>
+                      <span className="text-muted-foreground">
+                        ({fn.language} &middot; returns {fn.returnType})
+                      </span>
+                    </button>
+                  ) : null
+                })()}
 
-              {codePanel.type === 'function' && (() => {
-                const dependents = metadata.triggers.filter(
-                  (t) => t.function === (codePanel.item as PgFunction).name,
-                )
-                return dependents.length > 0 ? (
-                  <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground">
-                      Called by {dependents.length === 1 ? 'trigger' : 'triggers'}:
-                    </span>
-                    <div className="flex flex-wrap gap-1">
-                      {dependents.map((t) => (
-                        <button
-                          key={t.name}
-                          className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-mono hover:bg-accent transition-colors"
-                          onClick={() => setCodePanel({ type: 'trigger', item: t })}
-                        >
-                          {t.name}
-                          <span className="text-muted-foreground font-normal">
-                            ({t.table})
-                          </span>
-                        </button>
-                      ))}
+              {codePanel.type === 'function' &&
+                (() => {
+                  const dependents = metadata.triggers.filter(
+                    (t) => t.function === (codePanel.item as PgFunction).name,
+                  )
+                  return dependents.length > 0 ? (
+                    <div className="space-y-1">
+                      <span className="text-xs text-muted-foreground">
+                        Called by {dependents.length === 1 ? 'trigger' : 'triggers'}:
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {dependents.map((t) => (
+                          <button
+                            key={t.name}
+                            className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-mono hover:bg-accent transition-colors"
+                            onClick={() => setCodePanel({ type: 'trigger', item: t })}
+                          >
+                            {t.name}
+                            <span className="text-muted-foreground font-normal">({t.table})</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ) : null
-              })()}
+                  ) : null
+                })()}
 
               <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-foreground bg-muted rounded-md p-3 overflow-x-auto">
                 {codePanel.item.body}
