@@ -1,5 +1,5 @@
 {
-  "name": "@kyu/schema-viz",
+  "name": "pgviz",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "git:push": "git -C ../../ subtree push --prefix apps/schema-viz git@github.com:souravrax/pgviz.git main",
+    "git:pull": "git -C ../../ subtree pull --prefix apps/schema-viz git@github.com:souravrax/pgviz.git main --squash"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -23,6 +25,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "elkjs": "^0.11.1",
+    "idb-keyval": "^6.2.2",
     "lucide-react": "^1.0.1",
     "nanoid": "^5.1.7",
     "next": "16.2.1",

@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useStore } from 'zustand'
+import { schemaStore } from '@/lib/store'
 import { Play, Loader2 } from 'lucide-react'
+import { secureFetch } from '@/lib/api-client'
 
 type QueryResult = {
   rows: Record<string, unknown>[]
@@ -11,6 +14,7 @@ type QueryResult = {
 }
 
 export default function QueryPage() {
+  const activeDatabase = useStore(schemaStore, (s) => s.activeDatabase)
   const [sql, setSql] = useState('')
   const [result, setResult] = useState<QueryResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -18,6 +22,7 @@ export default function QueryPage() {
   const [history, setHistory] = useState<string[]>([])
 
   const run = useCallback(async () => {
+    if (!activeDatabase) return
     const trimmed = sql.trim()
     if (!trimmed) return
 
@@ -26,9 +31,11 @@ export default function QueryPage() {
     setResult(null)
 
     try {
-      const res = await fetch('/api/execute', {
+      const res = await secureFetch('/api/execute', activeDatabase.url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ sql: trimmed }),
       })
       const data = await res.json()
@@ -40,7 +47,7 @@ export default function QueryPage() {
     } finally {
       setLoading(false)
     }
-  }, [sql])
+  }, [sql, activeDatabase])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -59,7 +66,7 @@ export default function QueryPage() {
           <div className="flex-1" />
           <button
             onClick={run}
-            disabled={loading || !sql.trim()}
+            disabled={loading || !sql.trim() || !activeDatabase}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors disabled:opacity-40 ${
               loading ? 'bg-primary/15 text-primary' : 'bg-primary text-primary-foreground'
             }`}

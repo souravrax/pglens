@@ -27,8 +27,10 @@ import {
 } from '@/components/ui/select'
 import { Database, GitFork, LayoutDashboardIcon, ListTree, Terminal } from 'lucide-react'
 import Link from 'next/link'
+import { secureFetch } from '@/lib/api-client'
 
 const navMain = [
+  { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboardIcon },
   { title: 'Tables', path: '/tables', icon: Database },
   { title: 'Query', path: '/query', icon: Terminal },
   { title: 'Visualize', path: '/visualize', icon: GitFork },
@@ -48,17 +50,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const setSelectedTable = useStore(schemaStore, (s) => s.setSelectedTable)
   const search = useStore(schemaStore, (s) => s.search)
   const setSearch = useStore(schemaStore, (s) => s.setSearch)
+  const activeDatabase = useStore(schemaStore, (s) => s.activeDatabase)
 
   const activeNav = navMain.find((r) => pathname?.startsWith(r.path))?.path ?? '/tables'
 
   React.useEffect(() => {
-    fetch('/api/schemas')
+    if (!activeDatabase) return
+    secureFetch('/api/schemas', activeDatabase.url)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setSchemas(data)
       })
       .catch(() => {})
-  }, [setSchemas])
+  }, [setSchemas, activeDatabase])
 
   const filteredTables =
     schema?.tables.filter((t) => t.name.toLowerCase().includes(search.toLowerCase())) ?? []
@@ -87,7 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <LayoutDashboardIcon className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Database Studio</span>
+                    <span className="truncate font-semibold">pgviz</span>
                     <span className="truncate text-xs text-muted-foreground">
                       {schema ? `${schema.tables.length} tables` : '...'}
                     </span>

@@ -8,6 +8,8 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { useQueryState, parseAsInteger, parseAsString } from 'nuqs'
+import { useStore } from 'zustand'
+import { schemaStore } from '@/lib/store'
 import { Loader2 } from 'lucide-react'
 
 import { DataTable } from '@/components/data-table/data-table'
@@ -19,6 +21,7 @@ import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { getValidFilters } from '@/lib/data-table'
 import type { ExtendedColumnFilter } from '@/types/data-table'
+import { secureFetch } from '@/lib/api-client'
 
 type ColumnInfo = { name: string; type: string }
 
@@ -36,6 +39,7 @@ type Props = {
 }
 
 export default function DataTableViewer({ selectedTable, schema = 'public' }: Props) {
+  const activeDatabase = useStore(schemaStore, (s) => s.activeDatabase)
   const [data, setData] = useState<QueryResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -82,7 +86,7 @@ export default function DataTableViewer({ selectedTable, schema = 'public' }: Pr
   const validFilters = useMemo(() => getValidFilters(filters), [filters])
 
   const fetchData = useCallback(async () => {
-    if (!selectedTable) {
+    if (!selectedTable || !activeDatabase) {
       setData(null)
       return
     }
@@ -113,7 +117,7 @@ export default function DataTableViewer({ selectedTable, schema = 'public' }: Pr
     }
 
     try {
-      const res = await fetch(`/api/query?${params}`)
+      const res = await secureFetch(`/api/query?${params}`, activeDatabase.url)
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || 'Query failed')
@@ -125,7 +129,7 @@ export default function DataTableViewer({ selectedTable, schema = 'public' }: Pr
     } finally {
       setLoading(false)
     }
-  }, [selectedTable, schema, page, perPage, sorting, validFilters])
+  }, [selectedTable, schema, page, perPage, sorting, validFilters, activeDatabase])
 
   useEffect(() => {
     fetchData()

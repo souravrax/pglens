@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist_Mono, Geist, JetBrains_Mono, Inter, Merriweather } from 'next/font/google'
+import { Geist_Mono, JetBrains_Mono, Inter, Merriweather } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import './globals.css'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Database Studio',
+  title: 'pgviz',
   description: 'Interactive PostgreSQL schema visualizer and query tool',
 }
 

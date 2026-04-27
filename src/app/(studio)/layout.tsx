@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useStore } from 'zustand'
 import { schemaStore } from '@/lib/store'
 import { AppSidebar } from '@/components/app-sidebar'
@@ -9,16 +10,39 @@ import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ModeToggle } from '@/components/mode-toggle'
+import { secureFetch } from '@/lib/api-client'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { DatabaseIcon } from 'lucide-react'
+import type { DatabaseConfig } from '@/lib/store'
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
   const schema = useStore(schemaStore, (s) => s.schema)
+  const databases = useStore(schemaStore, (s) => s.databases)
   const setSchema = useStore(schemaStore, (s) => s.setSchema)
   const selectedSchema = useStore(schemaStore, (s) => s.selectedSchema)
+  const activeDatabase = useStore(schemaStore, (s) => s.activeDatabase)
+  const setActiveDatabase = useStore(schemaStore, (s) => s.setActiveDatabase)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`/api/schema?schema=${encodeURIComponent(selectedSchema)}`)
+    if (!activeDatabase) {
+      router.push('/')
+      return
+    }
+
+    secureFetch(`/api/schema?schema=${encodeURIComponent(selectedSchema)}`, activeDatabase.url)
       .then(async (res) => {
+        setError(null)
         if (!res.ok) {
           const err = await res.json()
           throw new Error(err.error || 'Failed to fetch schema')
@@ -27,14 +51,20 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
       })
       .then(setSchema)
       .catch((err) => setError(err.message))
-  }, [selectedSchema, setSchema])
+  }, [selectedSchema, setSchema, activeDatabase, router])
+
+  if (!activeDatabase) {
+    return null
+  }
 
   if (error) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-3 font-mono">
         <div className="text-sm font-bold text-destructive">Failed to load schema</div>
         <div className="text-xs text-muted-foreground">{error}</div>
-        <div className="text-[11px] text-muted-foreground">Make sure DATABASE_URL is set</div>
+        <div className="text-[11px] text-muted-foreground">
+          Make sure the connection URL is valid
+        </div>
       </div>
     )
   }
@@ -45,6 +75,11 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         Loading schema...
       </div>
     )
+  }
+
+  const handleSelect = (db: DatabaseConfig) => {
+    setActiveDatabase(db)
+    router.refresh()
   }
 
   return (
@@ -62,7 +97,40 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
             >
               {schema.tables.length} tables
             </Badge>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-3">
+              <span className="text-xs text-muted-foreground font-mono flex items-center gap-2">
+                Connected <span className="h-2 w-2 rounded-full bg-green-500" />
+              </span>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">{activeDatabase.name}</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Databases</DialogTitle>
+                    <DialogDescription>Select the database to visualize</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {databases.map((db) => (
+                      <Card
+                        key={db.id}
+                        className="cursor-pointer hover:border-primary/30 transition-colors"
+                        onClick={() => handleSelect(db)}
+                      >
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <DatabaseIcon className="size-4 text-muted-foreground" />
+                            {db.name}
+                          </CardTitle>
+                          <CardDescription>
+                            Added {new Date(db.createdAt).toLocaleDateString()}
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
               <ModeToggle />
             </div>
           </header>

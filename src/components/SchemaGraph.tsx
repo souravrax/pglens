@@ -251,9 +251,9 @@ function FlowGraph() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {selectedTable.primaryKeys.map((pk) => (
+                    {selectedTable.primaryKeys.map((pk, idx) => (
                       <Badge
-                        key={pk}
+                        key={`${selectedTable.name}-${pk}-${idx}`}
                         className="font-mono"
                       >
                         {pk}

@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Client } from 'pg'
+import { getDatabaseUrl } from '@/lib/api-utils'
 
 const DANGEROUS = /^\s*(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE)\b/i
 const SELECT = /^\s*(SELECT|WITH|EXPLAIN|SHOW)\b/i
 
 export async function POST(req: NextRequest) {
-  const databaseUrl = process.env.DATABASE_URL
+  const databaseUrl = await getDatabaseUrl(req)
   if (!databaseUrl) {
-    return NextResponse.json({ error: 'DATABASE_URL not set' }, { status: 500 })
+    return NextResponse.json({ error: 'Database connection URL not provided' }, { status: 500 })
   }
 
   const body = await req.json()

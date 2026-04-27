@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { listSchemas } from '@/lib/extract'
+import { getDatabaseUrl } from '@/lib/api-utils'
 
-export async function GET() {
-  const databaseUrl = process.env.DATABASE_URL
+export async function GET(req: NextRequest) {
+  const databaseUrl = await getDatabaseUrl(req)
   if (!databaseUrl) {
-    return NextResponse.json({ error: 'DATABASE_URL not set' }, { status: 500 })
+    return NextResponse.json({ error: 'Database connection URL not provided' }, { status: 500 })
   }
 
   try {

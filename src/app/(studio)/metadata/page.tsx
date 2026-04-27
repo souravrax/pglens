@@ -22,6 +22,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
+import { secureFetch } from '@/lib/api-client'
 
 type CodePanelState =
   | { type: 'trigger'; item: Trigger }
@@ -30,6 +31,7 @@ type CodePanelState =
 
 export default function MetadataPage() {
   const selectedSchema = useStore(schemaStore, (s) => s.selectedSchema)
+  const activeDatabase = useStore(schemaStore, (s) => s.activeDatabase)
   const [metadata, setMetadata] = useState<Metadata | null>(null)
   const [metadataSchema, setMetadataSchema] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -38,8 +40,9 @@ export default function MetadataPage() {
   const loading = metadataSchema !== selectedSchema
 
   useEffect(() => {
+    if (!activeDatabase) return
     const controller = new AbortController()
-    fetch(`/api/metadata?schema=${encodeURIComponent(selectedSchema)}`, {
+    secureFetch(`/api/metadata?schema=${encodeURIComponent(selectedSchema)}`, activeDatabase.url, {
       signal: controller.signal,
     })
       .then(async (res) => {
@@ -58,7 +61,7 @@ export default function MetadataPage() {
         if (err.name !== 'AbortError') setError(err.message)
       })
     return () => controller.abort()
-  }, [selectedSchema])
+  }, [selectedSchema, activeDatabase])
 
   if (loading) {
     return (
@@ -657,16 +660,16 @@ export default function MetadataPage() {
                     <span>
                       Trigger on{' '}
                       <span className="font-mono">{(codePanel.item as Trigger).table}</span>
-                      {' · '}
+                      {' \u00b7 '}
                       {(codePanel.item as Trigger).event}
-                      {' · '}
+                      {' \u00b7 '}
                       {(codePanel.item as Trigger).timing}
                     </span>
                   ) : (
                     <span>
                       Function &middot;{' '}
                       <span className="font-mono">{(codePanel.item as PgFunction).language}</span>
-                      {' · '}
+                      {' \u00b7 '}
                       {(codePanel.item as PgFunction).returnType}
                     </span>
                   )}
