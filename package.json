@@ -2,6 +2,7 @@
   "name": "pgviz",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,8 +10,7 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "git:push": "git -C ../../ subtree push --prefix apps/schema-viz git@github.com:souravrax/pgviz.git main",
-    "git:pull": "git -C ../../ subtree pull --prefix apps/schema-viz git@github.com:souravrax/pgviz.git main --squash"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.10.0",
@@ -58,6 +58,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
+    "turbo": "^2.9.6",
     "typescript": "^5"
   }
 }
