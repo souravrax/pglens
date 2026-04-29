@@ -90,7 +90,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
           <header className="flex h-10 shrink-0 items-center gap-2 border-b px-4 sticky top-0 z-10 bg-background/50 backdrop-blur-xl">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" />
-            <span className="text-sm font-semibold tracking-tight">Database Studio</span>
+            <span className="text-sm font-semibold tracking-tight">pgviz</span>
             <Badge
               variant="secondary"
               className="h-5 px-1.5 text-[10px] font-medium"

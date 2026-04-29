@@ -25,7 +25,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Database, GitFork, LayoutDashboardIcon, ListTree, Terminal } from 'lucide-react'
+import {
+  Database,
+  GitFork,
+  LayoutDashboardIcon,
+  ListTree,
+  Puzzle,
+  Route,
+  Terminal,
+  Zap,
+} from 'lucide-react'
 import Link from 'next/link'
 import { secureFetch } from '@/lib/api-client'
 
@@ -34,7 +43,10 @@ const navMain = [
   { title: 'Tables', path: '/tables', icon: Database },
   { title: 'Query', path: '/query', icon: Terminal },
   { title: 'Visualize', path: '/visualize', icon: GitFork },
+  { title: 'Triggers', path: '/triggers', icon: Zap },
+  { title: 'Explain', path: '/explain', icon: Route },
   { title: 'Metadata', path: '/metadata', icon: ListTree },
+  { title: 'Extensions', path: '/extensions', icon: Puzzle },
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

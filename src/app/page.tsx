@@ -8,7 +8,7 @@ import type { DatabaseConfig } from '@/lib/store'
 import { AddDatabaseDialog } from '@/components/AddDatabaseDialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
-import { Database, LayoutDashboardIcon, Plus, Trash2 } from 'lucide-react'
+import { Database, FlaskConical, LayoutDashboardIcon, Plus, Trash2 } from 'lucide-react'
 import { ModeToggle } from '@/components/mode-toggle'
 
 export default function Home() {
@@ -44,27 +44,21 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex py-2 shrink-0 items-center gap-3 border-b px-6 sticky top-0 z-10 bg-background/50 backdrop-blur-xl">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <LayoutDashboardIcon className="size-4" />
-          </div>
-          <span className="text-sm font-semibold tracking-tight">Database Studio</span>
-        </div>
+    <div className="flex min-h-screen flex-col items-center">
+      <header className="flex py-2 shrink-0 items-center gap-3 px-6 sticky top-0 z-10 bg-background/50 backdrop-blur-xl max-w-4xl w-full">
         <div className="ml-auto">
           <ModeToggle />
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col items-center px-6 py-16">
-        <div className="w-full max-w-3xl">
+      <main className="flex flex-1 flex-col items-center px-6 py-16 w-full">
+        <div className="w-full max-w-4xl">
           <div className="mb-12 text-center">
             <div className="flex items-center gap-2 flex-col">
               <div className="flex p-4 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Database className="size-8" />
+                <LayoutDashboardIcon className="size-8" />
               </div>
-              <h1 className="mb-2 text-2xl font-bold tracking-tight">Database Studio</h1>
+              <h1 className="mb-2 text-2xl font-bold tracking-tight">pgviz</h1>
             </div>
             <p className="text-sm text-muted-foreground">
               Manage and explore your PostgreSQL databases
@@ -76,6 +70,28 @@ export default function Home() {
               <p className="text-sm font-medium text-destructive">{error}</p>
             </div>
           )}
+
+          <div className="mb-8 rounded-lg border p-4 bg-muted/20">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <FlaskConical className="size-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold">Migration Playground</h3>
+                <p className="text-xs text-muted-foreground">
+                  Write and test PostgreSQL migrations in a safe sandbox with real-time schema
+                  visualization
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/playground')}
+              >
+                Launch
+              </Button>
+            </div>
+          </div>
 
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-sm font-semibold">Databases</h2>

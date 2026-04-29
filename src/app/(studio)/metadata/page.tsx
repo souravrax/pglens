@@ -85,7 +85,6 @@ export default function MetadataPage() {
     metadata.materializedViews.length > 0 ||
     metadata.sequences.length > 0 ||
     metadata.enums.length > 0 ||
-    metadata.extensions.length > 0 ||
     metadata.constraints.length > 0 ||
     metadata.tableSizes.length > 0 ||
     metadata.rlsPolicies.length > 0 ||
@@ -180,17 +179,6 @@ export default function MetadataPage() {
                     className="ml-1 h-4 px-1 text-[10px]"
                   >
                     {metadata.enums.length}
-                  </Badge>
-                </TabsTrigger>
-              )}
-              {metadata.extensions.length > 0 && (
-                <TabsTrigger value="extensions">
-                  Extensions
-                  <Badge
-                    variant="secondary"
-                    className="ml-1 h-4 px-1 text-[10px]"
-                  >
-                    {metadata.extensions.length}
                   </Badge>
                 </TabsTrigger>
               )}
@@ -446,33 +434,6 @@ export default function MetadataPage() {
                         </Badge>
                       ))}
                     </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TabsContent>
-
-          {/* Extensions */}
-          <TabsContent
-            value="extensions"
-            className="flex-1 overflow-auto"
-          >
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Version</TableHead>
-                  <TableHead>Schema</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {metadata.extensions.map((e) => (
-                  <TableRow key={e.name}>
-                    <TableCell className="font-mono">{e.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{e.version}</Badge>
-                    </TableCell>
-                    <TableCell className="font-mono text-muted-foreground">{e.schema}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

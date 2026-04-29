@@ -4,8 +4,21 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from 'zustand'
 import { schemaStore } from '@/lib/store'
-import { Database, GitFork, Table2, ArrowRight, KeyRound, Columns3 } from 'lucide-react'
+import {
+  Database,
+  GitFork,
+  Table2,
+  ArrowRight,
+  KeyRound,
+  Columns3,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
+} from 'lucide-react'
 import { secureFetch } from '@/lib/api-client'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -15,6 +28,19 @@ export default function DashboardPage() {
   const selectedSchema = useStore(schemaStore, (s) => s.selectedSchema)
   const activeDatabase = useStore(schemaStore, (s) => s.activeDatabase)
   const [error, setError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const maskedUrl = showPassword
+    ? activeDatabase?.url
+    : activeDatabase?.url.replace(/(:\/\/[^:\/]+:)[^@]+(@)/, '$1<password>$2')
+
+  const handleCopy = async () => {
+    if (!activeDatabase?.url) return
+    await navigator.clipboard.writeText(activeDatabase.url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   useEffect(() => {
     if (!activeDatabase) {
@@ -59,7 +85,39 @@ export default function DashboardPage() {
         <h2 className="text-xl font-bold">
           Overview of <span className="font-mono">{activeDatabase.name}</span>
         </h2>
-        <code className="mt-4 text-xs text-muted-foreground font-mono">{activeDatabase.url}</code>
+        <TooltipProvider>
+          <div className="mt-4 flex items-center gap-2">
+            <code className="text-xs font-mono bg-accent p-1 text-accent-foreground">
+              {maskedUrl}
+            </code>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{showPassword ? 'Hide password' : 'Show password'}</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={handleCopy}
+                  aria-label="Copy connection URL"
+                >
+                  {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{copied ? 'Copied!' : 'Copy URL'}</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
       <div className="flex-1 flex flex-col items-center px-6 py-8">
         <div className="w-full max-w-3xl">

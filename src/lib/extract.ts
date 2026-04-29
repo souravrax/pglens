@@ -271,6 +271,102 @@ export type Metadata = {
   grants: Grant[]
 }
 
+export async function listInstalledExtensions(connectionString: string): Promise<Extension[]> {
+  const client = new Client({ connectionString })
+  await client.connect()
+
+  try {
+    const result = await client.query(
+      `
+        SELECT
+          e.extname AS name,
+          e.extversion AS version,
+          n.nspname AS schema
+        FROM pg_extension e
+        JOIN pg_namespace n ON e.extnamespace = n.oid
+        ORDER BY e.extname
+      `,
+    )
+    return result.rows.map((r) => ({
+      name: r.name,
+      version: r.version,
+      schema: r.schema,
+    }))
+  } finally {
+    await client.end()
+  }
+}
+
+export type AvailableExtension = {
+  name: string
+  defaultVersion: string
+  installedVersion: string | null
+  comment: string
+}
+
+export async function listAvailableExtensions(
+  connectionString: string,
+): Promise<AvailableExtension[]> {
+  const client = new Client({ connectionString })
+  await client.connect()
+
+  try {
+    const result = await client.query(
+      `
+        SELECT
+          name,
+          default_version AS "defaultVersion",
+          installed_version AS "installedVersion",
+          comment
+        FROM pg_available_extensions
+        ORDER BY name
+      `,
+    )
+    return result.rows.map((r) => ({
+      name: r.name,
+      defaultVersion: r.defaultVersion,
+      installedVersion: r.installedVersion,
+      comment: r.comment,
+    }))
+  } finally {
+    await client.end()
+  }
+}
+
+export async function installExtension(
+  connectionString: string,
+  extensionName: string,
+  schemaName?: string,
+  version?: string,
+): Promise<void> {
+  const client = new Client({ connectionString })
+  await client.connect()
+
+  try {
+    const schemaClause = schemaName ? ` SCHEMA ${client.escapeIdentifier(schemaName)}` : ''
+    const versionClause = version ? ` VERSION ${client.escapeIdentifier(version)}` : ''
+    await client.query(
+      `CREATE EXTENSION IF NOT EXISTS ${client.escapeIdentifier(extensionName)}${schemaClause}${versionClause}`,
+    )
+  } finally {
+    await client.end()
+  }
+}
+
+export async function dropExtension(
+  connectionString: string,
+  extensionName: string,
+): Promise<void> {
+  const client = new Client({ connectionString })
+  await client.connect()
+
+  try {
+    await client.query(`DROP EXTENSION IF EXISTS ${client.escapeIdentifier(extensionName)}`)
+  } finally {
+    await client.end()
+  }
+}
+
 export async function extractMetadata(
   connectionString: string,
   schemaName: string = 'public',
