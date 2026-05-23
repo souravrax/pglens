@@ -1,0 +1,125 @@
+---
+const tiers = [
+  {
+    name: 'Individual',
+    price: '$15',
+    period: 'one-time',
+    description: 'For solo developers, freelancers, and hobbyists.',
+    features: ['All features included', 'Lifetime auto-updates', 'Up to 3 personal devices', 'Community support'],
+    cta: 'Buy Individual',
+    href: 'https://pgviz.lemonsqueezy.com/',
+    highlighted: false,
+  },
+  {
+    name: 'Team',
+    price: '$49',
+    period: '/year',
+    description: 'For startups and small engineering squads.',
+    features: ['Everything in Individual', 'Up to 5 developer seats', 'Centralized seat management', 'Priority email support'],
+    cta: 'Buy Team',
+    href: 'https://pgviz.lemonsqueezy.com/',
+    highlighted: true,
+  },
+  {
+    name: 'Enterprise',
+    price: '$199',
+    period: '/year',
+    description: 'For corporate engineering departments.',
+    features: ['Everything in Team', 'Unlimited seats', 'Custom onboarding', 'Priority support + SLA'],
+    cta: 'Buy Enterprise',
+    href: 'https://pgviz.lemonsqueezy.com/',
+    highlighted: false,
+  },
+];
+---
+
+<section class="py-16 sm:py-20">
+  <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+    <div class="flex flex-col gap-12 sm:gap-16">
+      <div class="flex flex-col gap-4">
+        <h2 class="text-3xl font-medium tracking-tight sm:text-4xl">Pricing</h2>
+        <p class="text-primary-950/70 dark:text-primary-200/70 text-lg">
+          One payment for individuals. Annual plans for teams. All include lifetime updates for the purchased tier.
+        </p>
+      </div>
+      <div class="grid gap-8 lg:grid-cols-3">
+        {
+          tiers.map((tier) => (
+            <div
+              class:list={[
+                'flex flex-col gap-8 rounded-3xl px-6 py-8',
+                tier.highlighted
+                  ? 'bg-primary-600 text-white dark:bg-primary-500'
+                  : 'bg-primary-500/10 dark:bg-primary-400/10',
+              ]}
+            >
+              <div class="flex flex-col gap-4">
+                <h3 class:list={['text-xl font-medium', tier.highlighted && 'text-white']}>
+                  {tier.name}
+                </h3>
+                <div class="flex items-baseline gap-1">
+                  <span class:list={['text-4xl font-bold', tier.highlighted && 'text-white']}>
+                    {tier.price}
+                  </span>
+                  <span
+                    class:list={[
+                      'text-sm',
+                      tier.highlighted
+                        ? 'text-white/80'
+                        : 'text-primary-950/60 dark:text-primary-200/60',
+                    ]}
+                  >
+                    {tier.period}
+                  </span>
+                </div>
+                <p
+                  class:list={[
+                    'text-sm',
+                    tier.highlighted
+                      ? 'text-white/80'
+                      : 'text-primary-950/60 dark:text-primary-200/60',
+                  ]}
+                >
+                  {tier.description}
+                </p>
+              </div>
+
+              <ul class="flex flex-col gap-3">
+                {tier.features.map((feature) => (
+                  <li class="flex items-center gap-3 text-sm">
+                    <svg
+                      class:list={[
+                        'h-5 w-5 shrink-0',
+                        tier.highlighted ? 'text-white' : 'text-primary-600 dark:text-primary-400',
+                      ]}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M9.9997 15.1709L19.1921 5.97852L20.6063 7.39273L9.9997 17.9993L3.63574 11.6354L5.04996 10.2212L9.9997 15.1709Z" />
+                    </svg>
+                    <span class:list={[tier.highlighted ? 'text-white/90' : '']}>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href={tier.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class:list={[
+                  'mt-auto inline-flex items-center justify-center rounded-full px-5 py-3 text-base font-medium transition',
+                  tier.highlighted
+                    ? 'bg-white text-primary-600 hover:bg-primary-50'
+                    : 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-400 dark:text-primary-950 dark:hover:bg-primary-300',
+                ]}
+              >
+                {tier.cta}
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
