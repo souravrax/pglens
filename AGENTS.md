@@ -57,7 +57,7 @@ Package manager: **pnpm** (`packageManager: pnpm@10.0.0` in `package.json`).
 - **PostgreSQL only.** No abstraction for other databases. All SQL is Postgres-specific.
 - **Native title bar.** `decorations: true` in Tauri config. No custom window chrome.
 - **Single repo.** No monorepo tooling (removed `turbo`, `pnpm-workspace`).
-- **License:** BSL 1.1. Free for personal/educational/non-commercial use. Commercial use requires purchase ($15+ on Lemon Squeezy). After 3 years, versions flip to Apache 2.0.
+- **License:** BSL 1.1. Core features free for personal/educational/non-commercial use. Pro ($4/mo, $24/yr, $59 lifetime) and Team ($9/mo, $49/yr) licenses unlock multi-device sync, team sharing, and upcoming features. After 3 years, versions flip to Apache 2.0.
 - **Repo must be public** for auto-updater to fetch `latest.json` from GitHub releases.
 
 ## Known gotchas

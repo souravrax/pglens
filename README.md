@@ -3,7 +3,7 @@
 A fast, native desktop app for visualizing and exploring PostgreSQL databases.
 
 ![License](https://img.shields.io/badge/license-BSL%201.1-blue)
-![Price](https://img.shields.io/badge/price-%2415%2B-green)
+![Price](https://img.shields.io/badge/price-Free%20%7C%20%244%2Fmo%20%7C%20%2459%20LTD-green)
 
 ## Features
 
@@ -17,7 +17,7 @@ A fast, native desktop app for visualizing and exploring PostgreSQL databases.
 
 ## Download
 
-**[Buy on Lemon Squeezy — From $15](https://pgviz.lemonsqueezy.com/checkout)**
+**[Download Free](https://github.com/souravrax/pgviz/releases) · [Upgrade to Pro](https://pgviz.lemonsqueezy.com/checkout)**
 
 Available for macOS (Intel & Apple Silicon), Windows, and Linux.
 
@@ -50,10 +50,12 @@ cd src-tauri && cargo check
 
 Business Source License 1.1 (BSL 1.1)
 
-- **Personal, educational, non-commercial:** Free
-- **Commercial use:** Requires a license — available at [pgviz.lemonsqueezy.com](https://pgviz.lemonsqueezy.com/checkout)
+- **Core features:** Free for personal, educational, and non-commercial use
+- **Pro ($4/mo, $24/yr, $59 lifetime):** Multi-device sync, upcoming Pro features, 2 device activations
+- **Team ($9/mo, $49/yr):** Team sharing, priority support, 5 device activations per key
+- Purchase at [pgviz.lemonsqueezy.com/checkout](https://pgviz.lemonsqueezy.com/checkout)
 
-The source code is public for transparency and community contribution. The compiled binaries (signed, auto-updating, and convenient) are the product being sold. After 3 years, each version automatically becomes fully open source under Apache 2.0.
+The source code is public for transparency and community contribution. After 3 years, each version automatically becomes fully open source under Apache 2.0.
 
 ## Support
 

@@ -243,15 +243,15 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3">
                       <Key className="size-5 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium">No license active</p>
+                        <p className="text-sm font-medium">Free tier</p>
                         <p className="text-xs text-muted-foreground">
-                          Personal use is free. Commercial use requires a license.
+                          All core features included. Upgrade to Pro for multi-device sync and upcoming features.
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Input
-                        placeholder="Enter license key"
+                        placeholder="Enter Pro or Team license key"
                         value={licenseKey}
                         onChange={(e) => {
                           setLicenseKey(e.target.value)
@@ -270,6 +270,10 @@ export default function SettingsPage() {
                     {licenseError && (
                       <p className="text-xs text-destructive">{licenseError}</p>
                     )}
+                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                      <p>Pro: $4/mo · $24/yr · $59 lifetime (2 devices)</p>
+                      <p>Team: $9/mo · $49/yr (5 devices)</p>
+                    </div>
                     <a
                       href="https://pgviz.lemonsqueezy.com/checkout"
                       target="_blank"
@@ -277,7 +281,7 @@ export default function SettingsPage() {
                       className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                     >
                       <ExternalLink className="size-3" />
-                      Buy a license on Lemon Squeezy
+                      Upgrade on Lemon Squeezy
                     </a>
                   </div>
                 )}
@@ -304,8 +308,8 @@ export default function SettingsPage() {
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                   Licensed under Business Source License 1.1 (BSL 1.1).
-                  Free for personal, educational, and non-commercial use.
-                  Commercial use requires a license — available at pgviz.lemonsqueezy.com/checkout
+                  Core features are free for personal, educational, and non-commercial use.
+                  Pro and Team licenses unlock multi-device sync, team sharing, and upcoming features.
                 </p>
               </div>
             </section>
