@@ -245,3 +245,26 @@ export async function addDatabase(
 export async function removeDatabase(id: string): Promise<void> {
   return invoke<void>('remove_database', { id })
 }
+
+// ── License validation ─────────────────────────────────────────────────────
+
+export type LicenseInfo = {
+  key: string
+  activatedAt: number
+  productId: string
+}
+
+export async function activateLicense(
+  key: string,
+  productId: string,
+): Promise<void> {
+  return invoke<void>('activate_license', { key, productId })
+}
+
+export async function getLicense(): Promise<LicenseInfo | null> {
+  return invoke<LicenseInfo | null>('get_license')
+}
+
+export async function deactivateLicense(): Promise<void> {
+  return invoke<void>('deactivate_license')
+}

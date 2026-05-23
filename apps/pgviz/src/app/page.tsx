@@ -8,6 +8,7 @@ import type { DatabaseConfig } from '@/lib/tauri-api'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Database, Plus, Trash2, Settings, ArrowRight, Check } from 'lucide-react'
+import { LicenseBanner } from '@/components/LicenseBanner'
 
 function isTauriEnv(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
@@ -55,6 +56,8 @@ function AppView() {
           </Button>
         </div>
       </header>
+
+      <LicenseBanner />
 
       <main className="flex-1 px-6 py-8">
         <div className="mx-auto max-w-3xl">

@@ -1,61 +1,54 @@
-# PolyForm Noncommercial License 1.0.0
+# Business Source License 1.1
 
-<https://polyformproject.org/licenses/noncommercial/1.0.0>
+Parameter Required:
+- Licensor:              pgviz (Sourav Rax)
+- Licensed Work:         pgviz — A native desktop app for visualizing and
+                       exploring PostgreSQL databases
+- Additional Use Grant:  You may make use of the Licensed Work for the
+                       following non-production purposes, provided that
+                       you do not use the Licensed Work for a Commercial
+                       Purpose:
+                       (a) personal, non-commercial use
+                       (b) evaluation, testing, and development
+                       (c) educational and academic research
+                       (d) contributing code back to the project
+- Change Date:          2028-05-23 (3 years from first release)
+- Change License:       Apache License, Version 2.0
 
-## Acceptance
+-----------------------------------------------------------------------------
 
-In order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.
+## Terms
 
-## Copyright License
+The Licensor hereby grants you the right to copy, modify, create derivative
+works, redistribute, and make non-production use of the Licensed Work. The
+Licensor may make an Additional Use Grant, above, permitting limited
+production use.
 
-The licensor grants you a copyright license for the software to do everything you would otherwise need a copyright license to do, but only for noncommercial purposes.
+Effective on the Change Date, or the fourth anniversary of the first publicly
+available distribution of a specific version of the Licensed Work under this
+License, whichever comes first, the Licensor hereby grants you rights under
+the terms of the Change License, and the rights granted in the paragraph
+above terminate.
 
-## Noncommercial Purposes
+If your use of the Licensed Work does not comply with the requirements
+currently in effect as described in this License, you must purchase a
+Commercial License from the Licensor, its affiliated entities, or authorized
+resellers, or you must refrain from using the Licensed Work.
 
-Noncommercial purposes include any use that is not directed at commercial advantage or monetary compensation. Any use directed at commercial advantage or monetary compensation is a commercial purpose.
+All copies of the original and modified Licensed Work, and derivative works of
+the Licensed Work, are subject to this License. This License applies
+separately for each version of the Licensed Work. This License does not
+grant any rights to any Licensor or contributor's trademarks.
 
-The use of this software to develop, test, or host software for others is a commercial purpose if you are paid for it.
+You may not use the Licensed Work for a Commercial Purpose without first
+purchasing a license. A "Commercial Purpose" means use of the Licensed Work
+for the delivery of business value to a third party (e.g., your employer or
+client) or for the purpose of generating revenue.
 
-## Distribution
-
-You may distribute copies of the software to others, but only for noncommercial purposes.
-
-## Notices
-
-You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms.
-
-## Patent License
-
-The licensor grants you a patent license for the software. That patent license covers patent claims the licensor can license, or becomes able to license, that you would otherwise infringe by using the software. That patent license is non-exclusive, worldwide, and limited to your use of the software for noncommercial purposes.
-
-## No Other Rights
-
-These terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else. These terms do not imply any other licenses.
-
-## Patent Defense
-
-If you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
-
-## Violations
-
-The first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 30 days of receiving notice. Otherwise, all your licenses end immediately.
-
-## No Liability
-
-***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***
-
-## Definitions
-
-The **licensor** is the individual or entity offering these terms.
-
-The **software** is the software the licensor makes available under these terms.
-
-**You** refers to the individual or entity agreeing to these terms.
-
-**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus any organizations that have control over, are under the control of, or are under common control with that organization.
-
-**Control** means ownership of substantially all the assets of an entity, or the power to direct its management and affairs, or the power to make decisions that bind the entity.
-
-**Your licenses** are all the licenses granted to you for the software under these terms.
-
-**Use** means anything you do with the software requiring one of your licenses.
+THE LICENSED WORK IS PROVIDED ON AN "AS IS" BASIS. THE LICENSOR MAKES NO
+WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR
+TITLE. THE LICENSOR SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING OUT OF OR
+RELATED TO THE LICENSED WORK, INCLUDING DIRECT, INDIRECT, SPECIAL,
+INCIDENTAL, OR CONSEQUENTIAL DAMAGES, REGARDLESS OF WHETHER THE LICENSOR HAS
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.

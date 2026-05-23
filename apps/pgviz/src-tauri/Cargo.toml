@@ -3,7 +3,7 @@ name = "pgviz"
 version = "0.1.0"
 description = "pgviz - Interactive PostgreSQL schema visualizer and query tool"
 authors = ["pgviz"]
-license = "PolyForm-Noncommercial-1.0.0"
+license = "BUSL-1.1"
 repository = ""
 edition = "2021"
 rust-version = "1.77.2"
@@ -25,6 +25,8 @@ tauri-plugin-os = "2"
 tauri-plugin-store = "2"
 tauri-plugin-updater = "2"
 keyring = "3"
+reqwest = { version = "0.12", features = ["json"] }
+chrono = "0.4"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 log = "0.4"

@@ -57,7 +57,7 @@ Package manager: **pnpm** (`packageManager: pnpm@10.0.0` in `package.json`).
 - **PostgreSQL only.** No abstraction for other databases. All SQL is Postgres-specific.
 - **Native title bar.** `decorations: true` in Tauri config. No custom window chrome.
 - **Single repo.** No monorepo tooling (removed `turbo`, `pnpm-workspace`).
-- **License:** PolyForm Noncommercial 1.0.0. Commercial use requires purchase ($10 on Lemon Squeezy).
+- **License:** BSL 1.1. Free for personal/educational/non-commercial use. Commercial use requires purchase ($15+ on Lemon Squeezy). After 3 years, versions flip to Apache 2.0.
 - **Repo must be public** for auto-updater to fetch `latest.json` from GitHub releases.
 
 ## Known gotchas

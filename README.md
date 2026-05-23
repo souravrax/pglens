@@ -2,8 +2,8 @@
 
 A fast, native desktop app for visualizing and exploring PostgreSQL databases.
 
-![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)
-![Price](https://img.shields.io/badge/price-%2410-green)
+![License](https://img.shields.io/badge/license-BSL%201.1-blue)
+![Price](https://img.shields.io/badge/price-%2415%2B-green)
 
 ## Features
 
@@ -17,7 +17,7 @@ A fast, native desktop app for visualizing and exploring PostgreSQL databases.
 
 ## Download
 
-**[Buy on Lemon Squeezy — $10](https://your-lemonsqueezy-link-here)**
+**[Buy on Lemon Squeezy — From $15](https://pgviz.lemonsqueezy.com/)**
 
 Available for macOS (Intel & Apple Silicon), Windows, and Linux.
 
@@ -48,12 +48,12 @@ cd src-tauri && cargo check
 
 ## License
 
-PolyForm Noncommercial License 1.0.0
+Business Source License 1.1 (BSL 1.1)
 
-- **Personal / non-commercial use:** Free
-- **Commercial use:** Requires a license — included with your $10 purchase on Lemon Squeezy
+- **Personal, educational, non-commercial:** Free
+- **Commercial use:** Requires a license — available at [pgviz.lemonsqueezy.com](https://pgviz.lemonsqueezy.com/)
 
-The source code is available for transparency and learning. The compiled binaries (signed, auto-updating, and convenient) are the product being sold.
+The source code is public for transparency and community contribution. The compiled binaries (signed, auto-updating, and convenient) are the product being sold. After 3 years, each version automatically becomes fully open source under Apache 2.0.
 
 ## Support
 

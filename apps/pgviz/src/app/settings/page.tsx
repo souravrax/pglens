@@ -15,8 +15,18 @@ import {
   Trash2,
   Database,
   Package,
+  Key,
+  ExternalLink,
+  CheckCircle2,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import {
+  getLicense,
+  activateLicense,
+  deactivateLicense,
+  type LicenseInfo,
+} from '@/lib/tauri-api'
+import { Input } from '@/components/ui/input'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -25,9 +35,40 @@ export default function SettingsPage() {
   const databases = useStore(schemaStore, (s) => s.databases)
   const deleteDatabase = useStore(schemaStore, (s) => s.deleteDatabase)
 
+  const [license, setLicense] = useState<LicenseInfo | null>(null)
+  const [licenseKey, setLicenseKey] = useState('')
+  const [licenseError, setLicenseError] = useState<string | null>(null)
+  const [licenseLoading, setLicenseLoading] = useState(false)
+
   useEffect(() => {
     setMounted(true)
+    getLicense().then(setLicense).catch(() => setLicense(null))
   }, [])
+
+  const handleActivate = async () => {
+    if (!licenseKey.trim()) return
+    setLicenseLoading(true)
+    setLicenseError(null)
+    try {
+      await activateLicense(licenseKey.trim(), 'pgviz')
+      const l = await getLicense()
+      setLicense(l)
+      setLicenseKey('')
+    } catch (err: unknown) {
+      setLicenseError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setLicenseLoading(false)
+    }
+  }
+
+  const handleDeactivate = async () => {
+    try {
+      await deactivateLicense()
+      setLicense(null)
+    } catch {
+      // ignore
+    }
+  }
 
   const handleDeleteAll = async () => {
     if (window.confirm('Are you sure? This will remove all saved connections.')) {
@@ -171,6 +212,78 @@ export default function SettingsPage() {
               )}
             </section>
 
+            {/* License */}
+            <section>
+              <h2 className="text-base font-semibold">License</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                BSL 1.1 — Free for personal use. Commercial requires a license.
+              </p>
+              <div className="mt-4 rounded-xl border bg-card p-4">
+                {license ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="size-5 text-green-500" />
+                      <div>
+                        <p className="text-sm font-medium">Licensed</p>
+                        <p className="text-xs text-muted-foreground font-mono">
+                          {license.key.slice(0, 8)}••••••••
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDeactivate}
+                    >
+                      Deactivate License
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <Key className="size-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">No license active</p>
+                        <p className="text-xs text-muted-foreground">
+                          Personal use is free. Commercial use requires a license.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Enter license key"
+                        value={licenseKey}
+                        onChange={(e) => {
+                          setLicenseKey(e.target.value)
+                          setLicenseError(null)
+                        }}
+                        className="font-mono text-sm"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={handleActivate}
+                        disabled={licenseLoading || !licenseKey.trim()}
+                      >
+                        {licenseLoading ? 'Activating...' : 'Activate'}
+                      </Button>
+                    </div>
+                    {licenseError && (
+                      <p className="text-xs text-destructive">{licenseError}</p>
+                    )}
+                    <a
+                      href="https://pgviz.lemonsqueezy.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                    >
+                      <ExternalLink className="size-3" />
+                      Buy a license on Lemon Squeezy
+                    </a>
+                  </div>
+                )}
+              </div>
+            </section>
+
             {/* About */}
             <section>
               <h2 className="text-base font-semibold">About</h2>
@@ -190,8 +303,9 @@ export default function SettingsPage() {
                   Next.js, Tauri, and Rust.
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                  Licensed under PolyForm Noncommercial 1.0.0. Commercial use requires
-                  a license — available on Lemon Squeezy for $10.
+                  Licensed under Business Source License 1.1 (BSL 1.1).
+                  Free for personal, educational, and non-commercial use.
+                  Commercial use requires a license — available at pgviz.lemonsqueezy.com
                 </p>
               </div>
             </section>

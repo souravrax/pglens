@@ -1,5 +1,6 @@
 mod commands;
 mod db;
+mod license;
 mod store;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -147,6 +148,9 @@ pub fn run() {
             store::get_databases,
             store::add_database,
             store::remove_database,
+            license::activate_license,
+            license::get_license,
+            license::deactivate_license,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
