@@ -5,6 +5,14 @@
   "version": "0.1.0",
   "publisher": "souravrax",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/souravrax/pglens"
+  },
+  "homepage": "https://github.com/souravrax/pglens#readme",
+  "bugs": {
+    "url": "https://github.com/souravrax/pglens/issues"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
