@@ -1,0 +1,134 @@
+{
+  "name": "pgviz",
+  "displayName": "pgviz - PostgreSQL Schema Visualizer",
+  "description": "Visualize your PostgreSQL database schemas as interactive ER diagrams",
+  "version": "0.1.0",
+  "publisher": "souravrax",
+  "private": true,
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Visualization",
+    "Data Science",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "postgresql",
+    "postgres",
+    "database",
+    "schema",
+    "er diagram",
+    "visualization"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pgviz.addConnection",
+        "title": "Add Connection",
+        "category": "pgviz",
+        "icon": "$(add)"
+      },
+      {
+        "command": "pgviz.removeConnection",
+        "title": "Remove Connection",
+        "category": "pgviz"
+      },
+      {
+        "command": "pgviz.refreshExplorer",
+        "title": "Refresh Explorer",
+        "category": "pgviz",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "pgviz.visualizeSchema",
+        "title": "Visualize Schema",
+        "category": "pgviz",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "pgviz.visualizeSchemaFromTree",
+        "title": "Visualize Schema",
+        "category": "pgviz"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pgviz-sidebar",
+          "title": "pgviz",
+          "icon": "$(database)"
+        }
+      ]
+    },
+    "views": {
+      "pgviz-sidebar": [
+        {
+          "id": "pgviz.explorer",
+          "name": "Connections",
+          "when": "pgviz:enabled"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "pgviz.addConnection",
+          "when": "view == pgviz.explorer",
+          "group": "navigation@1"
+        },
+        {
+          "command": "pgviz.refreshExplorer",
+          "when": "view == pgviz.explorer",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "pgviz.visualizeSchemaFromTree",
+          "when": "view == pgviz.explorer && viewItem == schema",
+          "group": "inline"
+        },
+        {
+          "command": "pgviz.removeConnection",
+          "when": "view == pgviz.explorer && viewItem == connection"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "pgviz",
+      "properties": {
+        "pgviz.showInternalSchemas": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show internal PostgreSQL schemas (pg_catalog, information_schema, etc.)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile && npm run build:webview",
+    "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --sourcemap --target=node20",
+    "compile:watch": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --sourcemap --target=node20 --watch",
+    "build:webview": "cd webview && npm run build",
+    "build": "npm run compile && npm run build:webview",
+    "watch": "npm-run-all --parallel compile:watch webview:dev",
+    "webview:dev": "cd webview && npm run dev",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pg": "^8.20.0",
+    "@types/vscode": "^1.90.0",
+    "esbuild": "^0.25.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "pg": "^8.14.0"
+  }
+}
