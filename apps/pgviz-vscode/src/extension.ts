@@ -22,6 +22,25 @@ export function activate(context: vscode.ExtensionContext) {
     showCollapseAll: false,
   })
 
+  // Update context flags that drive viewsWelcome
+  const updateContext = async () => {
+    const connections = await state.getConnections()
+    const active = await state.getActiveConnection()
+    vscode.commands.executeCommand('setContext', 'pgviz:noConnections', connections.length === 0)
+    vscode.commands.executeCommand('setContext', 'pgviz:noActiveConnection', connections.length > 0 && !active)
+  }
+
+  state.onDidChangeActive(() => {
+    updateContext()
+    schemaProvider.refresh()
+  })
+
+  // Watch for tree data changes to update context
+  connectionProvider.onDidChangeTreeData(() => updateContext())
+
+  // Initial context setup
+  updateContext()
+
   registerCommands(context, connectionProvider, schemaProvider, state)
 
   context.subscriptions.push(connectionTreeView, schemaTreeView)

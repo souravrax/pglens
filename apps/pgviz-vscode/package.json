@@ -45,6 +45,11 @@
         "icon": "$(plug)"
       },
       {
+        "command": "pgviz.deselectConnection",
+        "title": "Deselect Connection",
+        "category": "pgviz"
+      },
+      {
         "command": "pgviz.refreshConnections",
         "title": "Refresh Connections",
         "category": "pgviz",
@@ -91,6 +96,18 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "pgviz.connections",
+        "contents": "No connections configured.\n[Add Connection](command:pgviz.addConnection)\n",
+        "when": "pgviz:noConnections"
+      },
+      {
+        "view": "pgviz.schemas",
+        "contents": "No connection selected.\n[Select Connection](command:pgviz.selectConnection)\n",
+        "when": "pgviz:noActiveConnection"
+      }
+    ],
     "menus": {
       "view/title": [
         {
@@ -113,6 +130,11 @@
         {
           "command": "pgviz.selectConnection",
           "when": "view == pgviz.connections && viewItem == connection",
+          "group": "inline@1"
+        },
+        {
+          "command": "pgviz.deselectConnection",
+          "when": "view == pgviz.connections && viewItem == connection-active",
           "group": "inline@1"
         },
         {

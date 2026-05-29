@@ -22,10 +22,35 @@ export function registerCommands(
       }
     }),
 
-    vscode.commands.registerCommand('pgviz.selectConnection', (node) => {
+    vscode.commands.registerCommand('pgviz.selectConnection', async (node?) => {
       if (node?.type === 'connection') {
-        connectionProvider.selectConnection(node)
+        await connectionProvider.selectConnection(node)
+        return
       }
+
+      // Called from welcome view or title bar — show QuickPick
+      const connections = await state.getConnections()
+      if (connections.length === 0) {
+        vscode.window.showInformationMessage('No connections. Add one first.')
+        return
+      }
+
+      const active = await state.getActiveConnection()
+      const pick = await vscode.window.showQuickPick(
+        connections.map((c) => ({
+          label: c.id === active?.id ? `$(check) ${c.name}` : c.name,
+          description: c.id === active?.id ? 'active' : undefined,
+          id: c.id,
+        })),
+        { placeHolder: 'Select active connection', canPickMany: false }
+      )
+      if (!pick) return
+
+      await state.setActiveConnection(pick.id)
+    }),
+
+    vscode.commands.registerCommand('pgviz.deselectConnection', async () => {
+      await state.setActiveConnection(null)
     }),
 
     vscode.commands.registerCommand('pgviz.refreshConnections', () => {
