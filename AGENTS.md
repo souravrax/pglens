@@ -8,61 +8,75 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # pgviz
 
-Tauri v2 desktop app for visualizing PostgreSQL databases. Next.js 16 static-export frontend, Rust backend. No web server.
+VS Code extension for visualizing PostgreSQL database schemas as interactive ER diagrams.
 
 ## Dev commands
 
 ```bash
-pnpm tauri dev               # Start dev mode (needs Rust + Node)
-pnpm exec tsc --noEmit       # TypeScript check
-cd src-tauri && cargo check  # Rust check
-cd src-tauri && cargo check --release  # Rust check (release = keyring backend)
+pnpm dev                     # Watch extension host + webview
+pnpm build                   # Build extension host + webview for packaging
+pnpm --filter pgviz-vscode compile       # Build extension host only
+pnpm --filter pgviz-vscode build:webview # Build webview only
 ```
 
 Package manager: **pnpm** (`packageManager: pnpm@10.0.0` in `package.json`).
 
 ## Architecture
 
-- **Frontend:** Next.js with `output: 'export'`. Served inside a Tauri WebView. No actual web server.
-- **Backend:** Rust Tauri commands in `src-tauri/src/commands.rs`. All DB ops use `tokio-postgres`.
-- **Frontend → Rust:** Every DB call goes through `invoke()` via `src/lib/tauri-api.ts`. There is no HTTP API, no `fetch` to localhost.
-- **Storage:** Conditional compilation:
-  - `#[cfg(dev)]` → JSON file at `app_config_dir()/databases.json`
-  - `#[cfg(not(dev))]` → OS keyring (`com.pgviz.app` service)
-- **Auto-updater:** Tauri updater plugin. Fetches `latest.json` from GitHub releases. Requires repo to be **public**.
-- **Native menus:** Built in Rust (`src-tauri/src/lib.rs`), emit events to frontend (`MenuListener.tsx`).
+- **Extension Host** (`src/`): Node.js process running inside VS Code. Handles PostgreSQL connections via `pg`, schema introspection, sidebar tree view, and webview management.
+- **Webview** (`webview/`): React + Vite app running inside a VS Code webview panel. Renders the interactive ER diagram using `reactflow` + `elkjs`.
+- **Communication**: Extension host ↔ webview via `postMessage`.
 
 ## Key entry points
 
-- `src-tauri/src/lib.rs` — App init, menu setup, plugin registration, command routing
-- `src-tauri/src/commands.rs` — Tauri command handlers (thin wrappers over `db.rs`)
-- `src-tauri/src/db.rs` — All PostgreSQL introspection SQL
-- `src-tauri/src/store.rs` — `#[cfg(dev)]` JSON file backend + `#[cfg(not(dev))]` keyring backend
-- `src/lib/tauri-api.ts` — Frontend typed wrapper for all `invoke()` calls
-- `src/lib/store.ts` — Zustand store; persists UI state to localStorage, DB configs to Rust store
-- `src/components/MenuListener.tsx` — Listens to native menu events from Rust
-
-## Release workflow
-
-1. Push a tag `v*` → triggers `.github/workflows/release.yml`
-2. Builds: Linux (`.AppImage`, `.deb`), macOS Intel + Apple Silicon (`.dmg`), Windows (`.msi`)
-3. Requires `TAURI_SIGNING_PRIVATE_KEY` secret for updater signing
-4. Release is created as **draft** — manually publish to make `latest.json` live
-5. Download artifacts from draft release, upload to Lemon Squeezy product page
-6. Existing buyers get update emails from Lemon Squeezy when you upload new files
+- `src/extension.ts` — Extension activation, registers tree view and commands
+- `src/commands.ts` — Command palette handlers
+- `src/treeProvider.ts` — Database Explorer sidebar (TreeDataProvider)
+- `src/db.ts` — PostgreSQL introspection (ported from Rust `db.rs`)
+- `src/state.ts` — Connection persistence via `ExtensionContext.globalState`
+- `src/webviewManager.ts` — Creates webview panels, loads built React app
+- `webview/src/App.tsx` — Webview root, receives schema via `postMessage`
+- `webview/src/components/SchemaGraph.tsx` — ER diagram canvas (reactflow)
+- `webview/src/lib/transform.ts` — ELK layout + graph data transformation
 
 ## Critical constraints
 
-- **Static export only.** No API routes, no server-side rendering. The old `src/app/api/` was deleted.
-- **PostgreSQL only.** No abstraction for other databases. All SQL is Postgres-specific.
-- **Native title bar.** `decorations: true` in Tauri config. No custom window chrome.
-- **Single repo.** No monorepo tooling (removed `turbo`, `pnpm-workspace`).
-- **License:** BSL 1.1. Core features free for personal/educational/non-commercial use. Pro ($4/mo, $24/yr, $59 lifetime) and Team ($9/mo, $49/yr) licenses unlock multi-device sync, team sharing, and upcoming features. After 3 years, versions flip to Apache 2.0.
-- **Repo must be public** for auto-updater to fetch `latest.json` from GitHub releases.
+- **PostgreSQL only.** All SQL is Postgres-specific.
+- **No desktop app.** The old Tauri desktop app is archived at `archive/pgviz-desktop/`.
+- **VS Code webview.** The visualizer runs inside a VS Code webview panel, not a browser.
+- **Single repo.** No monorepo tooling beyond pnpm workspaces.
+- **License:** BSL 1.1.
 
 ## Known gotchas
 
-- `pnpm tauri build` is the correct build command. Do not pass `tauriScript: pnpm tauri build` to `tauri-action` — it appends `build` and creates `build build`.
-- Release workflow needs `permissions: contents: write` at the **workflow level**, not job level, or release creation fails with "Resource not accessible by integration".
-- `archive/` holds old playground code — excluded from TypeScript (`tsconfig.json` `exclude`) but still in repo.
-- The frontend uses `nuqs` for URL state in the studio routes (dashboard, query, etc.). The home/settings pages do not use query params.
+- `archive/` holds the old desktop app code — excluded from TypeScript but still in repo.
+- Webview assets are built to `media/webview/` and loaded via `asWebviewUri()`.
+- The webview must use VS Code CSS variables (`--vscode-editor-background`, etc.) for theming.
+- `pg` package is bundled into the extension; no native dependencies required.
+
+## Extension structure
+
+```
+apps/pgviz-vscode/
+├── package.json              # Extension manifest
+├── tsconfig.json
+├── src/
+│   ├── extension.ts          # Entry point
+│   ├── commands.ts           # Command handlers
+│   ├── treeProvider.ts       # Sidebar tree view
+│   ├── db.ts                 # PostgreSQL client + SQL
+│   ├── state.ts              # Connection storage
+│   └── webviewManager.ts     # Webview panel manager
+├── webview/                  # React app (separate build)
+│   ├── vite.config.ts
+│   └── src/
+│       ├── App.tsx
+│       ├── components/
+│       │   ├── SchemaGraph.tsx
+│       │   ├── TableNode.tsx
+│       │   └── ui/           # shadcn components
+│       └── lib/
+│           ├── transform.ts
+│           └── utils.ts
+└── media/webview/            # Built webview assets (gitignored)
+```
