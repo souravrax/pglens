@@ -33,4 +33,4 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install
-      - run: pnpm --filter pglens build:webview
+      - run: pnpm --filter webview build

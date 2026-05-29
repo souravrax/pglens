@@ -15,29 +15,29 @@ VS Code extension for visualizing PostgreSQL database schemas as interactive ER 
 ```bash
 pnpm dev                     # Watch extension host + webview
 pnpm build                   # Build extension host + webview for packaging
-pnpm --filter pglens compile       # Build extension host only
-pnpm --filter pglens build:webview # Build webview only
+pnpm --filter vscode-extension compile       # Build extension host only
+pnpm --filter webview build                   # Build webview only
 ```
 
 Package manager: **pnpm** (`packageManager: pnpm@10.0.0` in `package.json`).
 
 ## Architecture
 
-- **Extension Host** (`src/`): Node.js process running inside VS Code. Handles PostgreSQL connections via `pg`, schema introspection, sidebar tree view, and webview management.
-- **Webview** (`webview/`): React + Vite app running inside a VS Code webview panel. Renders the interactive ER diagram using `reactflow` + `elkjs`.
+- **Extension Host** (`apps/vscode-extension/src/`): Node.js process running inside VS Code. Handles PostgreSQL connections via `pg`, schema introspection, sidebar tree view, and webview management.
+- **Webview** (`apps/webview/`): React + Vite app. Renders the interactive ER diagram using `reactflow` + `dagre`. Can be reused outside VS Code.
 - **Communication**: Extension host ↔ webview via `postMessage`.
 
 ## Key entry points
 
-- `src/extension.ts` — Extension activation, registers tree view and commands
-- `src/commands.ts` — Command palette handlers
-- `src/treeProvider.ts` — Database Explorer sidebar (TreeDataProvider)
-- `src/db.ts` — PostgreSQL introspection (ported from Rust `db.rs`)
-- `src/state.ts` — Connection persistence via `ExtensionContext.globalState`
-- `src/webviewManager.ts` — Creates webview panels, loads built React app
-- `webview/src/App.tsx` — Webview root, receives schema via `postMessage`
-- `webview/src/components/SchemaGraph.tsx` — ER diagram canvas (reactflow)
-- `webview/src/lib/transform.ts` — ELK layout + graph data transformation
+- `apps/vscode-extension/src/extension.ts` — Extension activation, registers tree view and commands
+- `apps/vscode-extension/src/commands.ts` — Command palette handlers
+- `apps/vscode-extension/src/treeProvider.ts` — Database Explorer sidebar (TreeDataProvider)
+- `apps/vscode-extension/src/db.ts` — PostgreSQL introspection (ported from Rust `db.rs`)
+- `apps/vscode-extension/src/state.ts` — Connection persistence via `ExtensionContext.globalState`
+- `apps/vscode-extension/src/webviewManager.ts` — Creates webview panels, loads built React app
+- `apps/webview/src/App.tsx` — Webview root, receives schema via `postMessage`
+- `apps/webview/src/components/SchemaGraph.tsx` — ER diagram canvas (reactflow)
+- `apps/webview/src/lib/transform.ts` — Dagre layout + graph data transformation
 
 ## Critical constraints
 
@@ -57,7 +57,7 @@ Package manager: **pnpm** (`packageManager: pnpm@10.0.0` in `package.json`).
 ## Extension structure
 
 ```
-apps/pgviz-vscode/
+apps/vscode-extension/
 ├── package.json              # Extension manifest
 ├── tsconfig.json
 ├── src/
@@ -67,16 +67,18 @@ apps/pgviz-vscode/
 │   ├── db.ts                 # PostgreSQL client + SQL
 │   ├── state.ts              # Connection storage
 │   └── webviewManager.ts     # Webview panel manager
-├── webview/                  # React app (separate build)
-│   ├── vite.config.ts
-│   └── src/
-│       ├── App.tsx
-│       ├── components/
-│       │   ├── SchemaGraph.tsx
-│       │   ├── TableNode.tsx
-│       │   └── ui/           # shadcn components
-│       └── lib/
-│           ├── transform.ts
-│           └── utils.ts
 └── media/webview/            # Built webview assets (gitignored)
+
+apps/webview/                 # Reusable React app
+├── vite.config.ts
+├── package.json
+└── src/
+    ├── App.tsx
+    ├── components/
+    │   ├── SchemaGraph.tsx
+    │   ├── TableNode.tsx
+    │   └── ui/               # shadcn components
+    └── lib/
+        ├── transform.ts
+        └── utils.ts
 ```

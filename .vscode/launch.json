@@ -6,10 +6,10 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/apps/pgviz-vscode"
+        "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode-extension"
       ],
       "outFiles": [
-        "${workspaceFolder}/apps/pgviz-vscode/out/**/*.js"
+        "${workspaceFolder}/apps/vscode-extension/out/**/*.js"
       ],
       "preLaunchTask": "compile",
       "sourceMaps": true
@@ -19,10 +19,10 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/apps/pgviz-vscode"
+        "--extensionDevelopmentPath=${workspaceFolder}/apps/vscode-extension"
       ],
       "outFiles": [
-        "${workspaceFolder}/apps/pgviz-vscode/out/**/*.js"
+        "${workspaceFolder}/apps/vscode-extension/out/**/*.js"
       ],
       "sourceMaps": true
     }

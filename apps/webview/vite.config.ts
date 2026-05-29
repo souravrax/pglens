@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../media/webview',
+    outDir: '../vscode-extension/media/webview',
     emptyOutDir: true,
   },
   base: './',

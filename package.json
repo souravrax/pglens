@@ -5,8 +5,8 @@
   "description": "Monorepo for pglens — a VS Code extension for visualizing PostgreSQL schemas as ER diagrams",
   "packageManager": "pnpm@10.0.0",
   "scripts": {
-    "dev": "pnpm --filter pglens watch",
-    "build": "pnpm --filter pglens build",
+    "dev": "pnpm --parallel --filter pglens --filter webview watch",
+    "build": "pnpm --filter pglens compile && pnpm --filter webview build",
     "build:landing": "pnpm --filter landing build",
     "typecheck": "pnpm --filter pglens lint",
     "lint": "pnpm --filter pglens lint",

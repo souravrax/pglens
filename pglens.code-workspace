@@ -2,7 +2,7 @@
   "folders": [
     {
       "name": "pglens-vscode",
-      "path": "apps/pgviz-vscode"
+      "path": "apps/vscode-extension"
     },
     {
       "name": "landing",
