@@ -24,6 +24,10 @@ export function registerCommands(
 
     vscode.commands.registerCommand('pgviz.selectConnection', async (node?) => {
       if (node?.type === 'connection') {
+        if (node.isActive) {
+          vscode.window.showInformationMessage('This connection is already active')
+          return
+        }
         await connectionProvider.selectConnection(node)
         return
       }
@@ -49,7 +53,11 @@ export function registerCommands(
       await state.setActiveConnection(pick.id)
     }),
 
-    vscode.commands.registerCommand('pgviz.deselectConnection', async () => {
+    vscode.commands.registerCommand('pgviz.deselectConnection', async (node?) => {
+      if (node?.type === 'connection' && !node.isActive) {
+        vscode.window.showInformationMessage('This connection is not active')
+        return
+      }
       await state.setActiveConnection(null)
     }),
 

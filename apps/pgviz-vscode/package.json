@@ -139,7 +139,12 @@
         },
         {
           "command": "pgviz.removeConnection",
-          "when": "view == pgviz.connections && viewItem =~ /connection/",
+          "when": "view == pgviz.connections && viewItem == connection",
+          "group": "inline@2"
+        },
+        {
+          "command": "pgviz.removeConnection",
+          "when": "view == pgviz.connections && viewItem == connection-active",
           "group": "inline@2"
         },
         {
