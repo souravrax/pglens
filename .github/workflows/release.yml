@@ -1,75 +1,48 @@
-name: Release
+name: Publish
 
 on:
   push:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: ubuntu-22.04
-            args: ''
-          - platform: macos-latest
-            args: '--target aarch64-apple-darwin'
-          - platform: macos-latest
-            args: '--target x86_64-apple-darwin'
-          - platform: windows-latest
-            args: ''
+  publish:
+    runs-on: ubuntu-latest
 
-    runs-on: ${{ matrix.platform }}
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - name: Setup node
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: pnpm
+          node-version: 20
 
-      - name: Install frontend dependencies
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install dependencies
         run: pnpm install
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - name: Build webview
+        run: pnpm --filter pgviz build:webview
 
-      - name: Install Linux dependencies
-        if: matrix.platform == 'ubuntu-22.04'
+      - name: Compile extension
+        run: pnpm --filter pgviz compile
+
+      - name: Package extension
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          cd apps/pgviz-vscode
+          pnpm exec vsce package --no-dependencies
 
-      - name: Build and release
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-        with:
-          projectPath: apps/pgviz
-          tagName: ${{ github.ref_name }}
-          releaseName: pgviz ${{ github.ref_name }}
-          releaseBody: |
-            ## What's New
-            See the assets below to download and install this version.
+      - name: Publish to VS Code Marketplace
+        run: |
+          cd apps/pgviz-vscode
+          pnpm exec vsce publish --no-dependencies -p ${{ secrets.VSCE_TOKEN }}
 
-            Auto-updates are enabled — the app will prompt you to install the latest version on next launch.
-
-            ## Distribution
-            pgviz is available on Lemon Squeezy for $10. The source code is available under the PolyForm Noncommercial License 1.0.0.
-          releaseDraft: true
-          prerelease: false
-          args: ${{ matrix.args }}
+      - name: Publish to Open VSX
+        run: |
+          cd apps/pgviz-vscode
+          pnpm exec ovsx publish *.vsix -p ${{ secrets.OVSX_TOKEN }}
