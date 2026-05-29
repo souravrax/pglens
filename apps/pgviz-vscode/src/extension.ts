@@ -1,21 +1,31 @@
 import * as vscode from 'vscode'
-import { PgTreeDataProvider } from './treeProvider.js'
+import { ConnectionState } from './state.js'
+import { ConnectionTreeProvider } from './connectionTreeProvider.js'
+import { SchemaTreeProvider } from './schemaTreeProvider.js'
 import { registerCommands } from './commands.js'
 
 export function activate(context: vscode.ExtensionContext) {
   // Ensure our sidebar view is visible by setting the context
   vscode.commands.executeCommand('setContext', 'pgviz:enabled', true)
 
-  const treeProvider = new PgTreeDataProvider(context)
+  const state = new ConnectionState(context)
 
-  const treeView = vscode.window.createTreeView('pgviz.explorer', {
-    treeDataProvider: treeProvider,
-    showCollapseAll: true,
+  const connectionProvider = new ConnectionTreeProvider(context, state)
+  const schemaProvider = new SchemaTreeProvider(context, state)
+
+  const connectionTreeView = vscode.window.createTreeView('pgviz.connections', {
+    treeDataProvider: connectionProvider,
+    showCollapseAll: false,
   })
 
-  registerCommands(context, treeProvider)
+  const schemaTreeView = vscode.window.createTreeView('pgviz.schemas', {
+    treeDataProvider: schemaProvider,
+    showCollapseAll: false,
+  })
 
-  context.subscriptions.push(treeView)
+  registerCommands(context, connectionProvider, schemaProvider, state)
+
+  context.subscriptions.push(connectionTreeView, schemaTreeView)
 }
 
 export function deactivate() {

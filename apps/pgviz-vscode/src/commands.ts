@@ -1,44 +1,64 @@
 import * as vscode from 'vscode'
-import { PgTreeDataProvider, type TreeNode } from './treeProvider.js'
+import type { ConnectionTreeProvider } from './connectionTreeProvider.js'
+import type { SchemaTreeProvider, SchemaNode } from './schemaTreeProvider.js'
+import { ConnectionState } from './state.js'
 import { extractSchema } from './db.js'
 import { showSchemaVisualizer } from './webviewManager.js'
 
 export function registerCommands(
   context: vscode.ExtensionContext,
-  treeProvider: PgTreeDataProvider
+  connectionProvider: ConnectionTreeProvider,
+  schemaProvider: SchemaTreeProvider,
+  state: ConnectionState
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand('pgviz.addConnection', () => {
-      treeProvider.addConnection()
+      connectionProvider.addConnection()
     }),
 
-    vscode.commands.registerCommand('pgviz.removeConnection', (node: TreeNode) => {
-      if (node.type === 'connection') {
-        treeProvider.removeConnection(node)
+    vscode.commands.registerCommand('pgviz.removeConnection', (node) => {
+      if (node?.type === 'connection') {
+        connectionProvider.removeConnection(node)
       }
     }),
 
-    vscode.commands.registerCommand('pgviz.refreshExplorer', () => {
-      treeProvider.refresh()
+    vscode.commands.registerCommand('pgviz.selectConnection', (node) => {
+      if (node?.type === 'connection') {
+        connectionProvider.selectConnection(node)
+      }
+    }),
+
+    vscode.commands.registerCommand('pgviz.refreshConnections', () => {
+      connectionProvider.refresh()
+    }),
+
+    vscode.commands.registerCommand('pgviz.refreshSchemas', () => {
+      schemaProvider.refresh()
     }),
 
     vscode.commands.registerCommand('pgviz.visualizeSchema', async () => {
-      // Could show quick pick of connections then schemas
-      vscode.window.showInformationMessage('Select a schema from the pgviz explorer and click "Visualize Schema"')
+      const active = await state.getActiveConnection()
+      if (!active) {
+        vscode.window.showInformationMessage('Add and select a connection first.')
+        return
+      }
+      vscode.window.showInformationMessage('Select a schema from the Schemas panel and click "Visualize Schema"')
     }),
 
     vscode.commands.registerCommand(
       'pgviz.visualizeSchemaFromTree',
-      async (node?: TreeNode) => {
+      async (node?: SchemaNode) => {
         if (!node || node.type !== 'schema') return
+        const active = await state.getActiveConnection()
+        if (!active) return
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: `Loading schema "${node.schema}"...`,
+            title: `Loading schema "${node.name}"...`,
             cancellable: false,
           },
           async () => {
-            const schema = await extractSchema(node.config.url, node.schema)
+            const schema = await extractSchema(active.url, node.name)
             showSchemaVisualizer(context, schema)
           }
         )
