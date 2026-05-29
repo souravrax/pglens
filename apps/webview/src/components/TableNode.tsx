@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { useSelectedTable } from './SchemaGraph'
 
 const HIGHLIGHT_STYLES = {
-  selected: 'ring-2 ring-primary ring-offset-2 shadow-[0_0_20px_rgba(var(--primary),0.3)]',
+  selected: 'ring-2 ring-primary/50 ring-offset-2',
   outgoing: 'ring-2 ring-cyan-500 ring-offset-2 shadow-[0_0_12px_rgba(6,182,212,0.2)]',
   incoming: 'ring-2 ring-pink-500 ring-offset-2 shadow-[0_0_12px_rgba(236,72,153,0.2)]',
   both: 'ring-2 ring-primary ring-offset-2 shadow-[0_0_12px_rgba(var(--primary),0.2)]',
@@ -26,13 +26,13 @@ function TableNode({ data, id }: NodeProps<TableNodeData>) {
   return (
     <div
       className={cn(
-        'min-w-[280px] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 bg-card border',
-        isSelected ? HIGHLIGHT_STYLES.selected : 'border-border'
+        'min-w-[280px] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 bg-card border border-border',
+        isSelected ? HIGHLIGHT_STYLES.selected : 'ring-0'
       )}
     >
       <Handle type="target" position={Position.Left} className="opacity-0" />
 
-      <div className="px-4 py-3 flex items-center justify-between bg-muted/30 border-b">
+      <div className="px-4 py-3 flex items-center justify-between bg-muted/30 border-b border-border">
         <span className="text-sm font-bold tracking-tight text-foreground">{table.name}</span>
         <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-medium bg-background/50">
           {table.columns.length} cols

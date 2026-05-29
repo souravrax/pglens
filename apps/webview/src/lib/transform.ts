@@ -1,5 +1,5 @@
 import dagre from 'dagre'
-import type { Node, Edge } from 'reactflow'
+import { type Node, type Edge, MarkerType } from 'reactflow'
 import type { Schema, Table } from 'api'
 
 export type { Schema, Table } from 'api'
@@ -55,7 +55,10 @@ export function schemaToGraph(schema: Schema): {
     type: 'default',
     animated: false,
     style: { stroke: 'var(--color-border)', strokeWidth: 1.5 },
-    markerEnd: 'arrowclosed',
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: 'var(--color-border)',
+    },
   }))
 
   return { nodes, edges }

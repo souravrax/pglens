@@ -8,6 +8,7 @@ import ReactFlow, {
   useEdgesState,
   useReactFlow,
   BackgroundVariant,
+  MarkerType,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import TableNode from './TableNode'
@@ -91,6 +92,11 @@ function FlowGraph({ schema }: { schema: Schema }) {
         eds.map((e) => ({
           ...e,
           style: { stroke: DEFAULT_EDGE, opacity: 1, strokeWidth: 1.5 },
+          animated: false,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: 'var(--color-border)',
+          },
         }))
       )
       return
@@ -98,20 +104,25 @@ function FlowGraph({ schema }: { schema: Schema }) {
     setEdges((eds) =>
       eds.map((e) => {
         if (e.source === selectedTable) {
-          return { ...e, style: { stroke: OUTGOING_COLOR, opacity: 1, strokeWidth: 3 } }
+          return {
+            ...e, style: { stroke: OUTGOING_COLOR, opacity: 1, strokeWidth: 1.5 }, animated: true, markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: OUTGOING_COLOR,
+            },
+          }
         }
         if (e.target === selectedTable) {
-          return { ...e, style: { stroke: INCOMING_COLOR, opacity: 1, strokeWidth: 3 } }
+          return {
+            ...e, style: { stroke: INCOMING_COLOR, opacity: 1, strokeWidth: 1.5 }, animated: true, markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: INCOMING_COLOR,
+            },
+          }
         }
         return { ...e, style: { stroke: DEFAULT_EDGE, opacity: DIMMED_OPACITY, strokeWidth: 1 } }
       })
     )
   }, [selectedTable, schema, layoutReady, setEdges])
-
-  const handleFitView = useCallback(() => {
-    setSelectedTable(null)
-    fitView({ padding: 0.15, duration: 400 })
-  }, [fitView])
 
   const selectedTableData = useMemo(
     () => (selectedTable && schema ? (schema.tables.find((t) => t.name === selectedTable) ?? null) : null),
@@ -163,7 +174,7 @@ function FlowGraph({ schema }: { schema: Schema }) {
           edgeTypes={edgeTypes}
           fitView
           fitViewOptions={fitViewOptions}
-          minZoom={0.05}
+          minZoom={0.2}
           maxZoom={2}
           elevateNodesOnSelect={false}
           attributionPosition="bottom-right"
@@ -172,26 +183,15 @@ function FlowGraph({ schema }: { schema: Schema }) {
           <Controls showInteractive={false} className="bg-card! border-border! fill-foreground!" />
           <MiniMap
             nodeColor={minimapNodeColor}
-            maskColor="rgba(0,0,0,0.4)"
+            maskColor="rgba(0, 0, 0, 0.03)"
             className="bg-card! border-border! rounded-lg! overflow-hidden"
           />
         </ReactFlow>
 
-        <div className="absolute top-4 left-4 flex gap-2 z-10">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="secondary" size="icon" className="h-9 w-9 shadow-lg bg-card/80 backdrop-blur" onClick={handleFitView}>
-                <Maximize2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Fit View</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+
 
         {selectedTable && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-5 px-4 py-2.5 rounded-full border bg-card/90 backdrop-blur shadow-xl text-[10px] font-bold uppercase tracking-wider z-10 transition-all">
+          <div className="absolute top-4 left-4 flex items-center gap-5 px-4 py-2.5 rounded-full border bg-card/90 backdrop-blur shadow-xl text-[10px] font-bold uppercase tracking-wider z-10 transition-all">
             <div className="flex items-center gap-2">
               <Badge className="w-2 h-2 rounded-full p-0 border-0" style={{ background: OUTGOING_COLOR }} />
               <span className="text-muted-foreground">Outgoing</span>
