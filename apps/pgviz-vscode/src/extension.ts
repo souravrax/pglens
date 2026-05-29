@@ -1,31 +1,47 @@
 import * as vscode from 'vscode'
 import { ConnectionState } from './state.js'
-import { ConnectionTreeProvider } from './connectionTreeProvider.js'
 import { SchemaTreeProvider } from './schemaTreeProvider.js'
 import { registerCommands } from './commands.js'
 
 export function activate(context: vscode.ExtensionContext) {
-  // Ensure our sidebar view is visible by setting the context
-  vscode.commands.executeCommand('setContext', 'pgviz:enabled', true)
-
   const state = new ConnectionState(context)
 
-  const connectionProvider = new ConnectionTreeProvider(context, state)
   const schemaProvider = new SchemaTreeProvider(context, state)
-
-  const connectionTreeView = vscode.window.createTreeView('pgviz.connections', {
-    treeDataProvider: connectionProvider,
-    showCollapseAll: false,
-  })
 
   const schemaTreeView = vscode.window.createTreeView('pgviz.schemas', {
     treeDataProvider: schemaProvider,
     showCollapseAll: false,
   })
 
-  registerCommands(context, connectionProvider, schemaProvider, state)
+  // Update tree view description when active connection changes
+  const updateDescription = async () => {
+    const active = await state.getActiveConnection()
+    schemaTreeView.description = active ? active.name : undefined
+  }
 
-  context.subscriptions.push(connectionTreeView, schemaTreeView)
+  // Update welcome view context flags
+  const updateContext = async () => {
+    const connections = await state.getConnections()
+    vscode.commands.executeCommand('setContext', 'pgviz:enabled', true)
+    vscode.commands.executeCommand('setContext', 'pgviz:noConnections', connections.length === 0)
+    vscode.commands.executeCommand('setContext', 'pgviz:hasConnections', connections.length > 0)
+    updateDescription()
+  }
+
+  state.onDidChangeActive(() => {
+    updateDescription()
+    schemaProvider.refresh()
+  })
+
+  // Also refresh context when connections change via add/remove
+  schemaProvider.onDidChangeTreeData(() => updateContext())
+
+  // Initial context setup
+  updateContext()
+
+  registerCommands(context, schemaProvider, state, () => updateContext())
+
+  context.subscriptions.push(schemaTreeView)
 }
 
 export function deactivate() {

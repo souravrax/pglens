@@ -41,13 +41,8 @@
       {
         "command": "pgviz.selectConnection",
         "title": "Select Connection",
-        "category": "pgviz"
-      },
-      {
-        "command": "pgviz.refreshConnections",
-        "title": "Refresh Connections",
         "category": "pgviz",
-        "icon": "$(refresh)"
+        "icon": "$(plug)"
       },
       {
         "command": "pgviz.refreshSchemas",
@@ -79,45 +74,42 @@
     "views": {
       "pgviz-sidebar": [
         {
-          "id": "pgviz.connections",
-          "name": "Connection",
-          "when": "pgviz:enabled"
-        },
-        {
           "id": "pgviz.schemas",
           "name": "Schemas",
           "when": "pgviz:enabled"
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "pgviz.schemas",
+        "contents": "No connections configured.\n[Add Connection](command:pgviz.addConnection)\n",
+        "when": "pgviz:noConnections"
+      }
+    ],
     "menus": {
       "view/title": [
         {
           "command": "pgviz.addConnection",
-          "when": "view == pgviz.connections",
+          "when": "view == pgviz.schemas",
           "group": "navigation@1"
         },
         {
-          "command": "pgviz.refreshConnections",
-          "when": "view == pgviz.connections",
+          "command": "pgviz.selectConnection",
+          "when": "view == pgviz.schemas && pgviz:hasConnections",
           "group": "navigation@2"
         },
         {
           "command": "pgviz.refreshSchemas",
           "when": "view == pgviz.schemas",
-          "group": "navigation@1"
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
         {
-          "command": "pgviz.selectConnection",
-          "when": "view == pgviz.connections && viewItem == connection",
-          "group": "inline@1"
-        },
-        {
           "command": "pgviz.removeConnection",
-          "when": "view == pgviz.connections && viewItem == connection",
-          "group": "inline@2"
+          "when": "view == pgviz.schemas && viewItem == connection",
+          "group": "inline@1"
         },
         {
           "command": "pgviz.visualizeSchemaFromTree",

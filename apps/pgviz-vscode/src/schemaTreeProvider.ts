@@ -15,7 +15,6 @@ export class SchemaTreeProvider implements vscode.TreeDataProvider<SchemaNode> {
     private context: vscode.ExtensionContext,
     private state: ConnectionState
   ) {
-    // Refresh when active connection changes
     state.onDidChangeActive(() => this.refresh())
   }
 
