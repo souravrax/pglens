@@ -1,6 +1,5 @@
 .vscode/
 node_modules/
-out/
 webview/node_modules/
 webview/dist/
 *.vsix
