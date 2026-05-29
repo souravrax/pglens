@@ -36,7 +36,8 @@
       {
         "command": "pgviz.removeConnection",
         "title": "Remove Connection",
-        "category": "pgviz"
+        "category": "pgviz",
+        "icon": "$(trash)"
       },
       {
         "command": "pgviz.selectConnection",
@@ -47,7 +48,8 @@
       {
         "command": "pgviz.deselectConnection",
         "title": "Deselect Connection",
-        "category": "pgviz"
+        "category": "pgviz",
+        "icon": "$(close)"
       },
       {
         "command": "pgviz.refreshConnections",
@@ -70,7 +72,8 @@
       {
         "command": "pgviz.visualizeSchemaFromTree",
         "title": "Visualize Schema",
-        "category": "pgviz"
+        "category": "pgviz",
+        "icon": "$(graph)"
       }
     ],
     "viewsContainers": {
