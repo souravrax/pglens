@@ -5,6 +5,10 @@ import type { Schema } from '@/lib/transform'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { useSelectedTable } from './SchemaGraph'
+import { EllipsisVerticalIcon, Table2Icon, CopyIcon, CheckIcon } from 'lucide-react'
+import { Button } from './ui/button'
+import { Popover, PopoverTrigger, PopoverContent } from './ui/popover'
+import { useState } from 'react'
 
 const HIGHLIGHT_STYLES = {
   selected: 'ring-2 ring-primary/50 ring-offset-2',
@@ -22,21 +26,81 @@ function TableNode({ data, id }: NodeProps<TableNodeData>) {
   const getFK = (col: string) => foreignKeys.find((fk) => fk.column === col)
 
   const isSelected = selectedTable && id === selectedTable
+  const [copied, setCopied] = useState<'copy_name' | 'copy_sql' | 'copy_markdown' | null>(null)
+
+  const copy = (text: string, type: 'copy_name' | 'copy_sql' | 'copy_markdown') => {
+    navigator.clipboard.writeText(text)
+    setCopied(type)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  const copyName = () => copy(table.name, 'copy_name')
+
+  const copyAsSQL = () => {
+    const columns = table.columns.map((c) => `  ${c.name} ${c.type}${c.nullable ? '' : ' NOT NULL'}`).join(',\n')
+    const pk = table.primaryKeys.length
+      ? `  PRIMARY KEY (${table.primaryKeys.join(', ')})`
+      : ''
+    const sql = `CREATE TABLE ${table.name} (\n${columns}${pk ? ',\n' + pk : ''}\n);`
+    copy(sql, 'copy_sql')
+  }
+
+  const copyAsMarkdown = () => {
+    const header = `| Column | Type | Nullable |`
+    const separator = `|--------|------|----------|`
+    const rows = table.columns
+      .map((c) => `| ${c.name} | ${c.type} | ${c.nullable ? 'YES' : 'NO'} |`)
+      .join('\n')
+    copy(`${header}\n${separator}\n${rows}`, 'copy_markdown')
+  }
 
   return (
     <div
       className={cn(
-        'min-w-[280px] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 bg-card border border-border',
+        'min-w-[280px] rounded overflow-hidden shadow-2xl transition-all duration-300 bg-card border border-border',
         isSelected ? HIGHLIGHT_STYLES.selected : 'ring-0'
       )}
     >
       <Handle type="target" position={Position.Left} className="opacity-0" />
 
-      <div className="px-4 py-3 flex items-center justify-between bg-muted/30 border-b border-border">
-        <span className="text-sm font-bold tracking-tight text-foreground">{table.name}</span>
-        <Badge variant="outline" className="h-5 px-1.5 text-[10px] font-medium bg-background/50">
-          {table.columns.length} cols
-        </Badge>
+      <div className="px-2.5 py-1.5 flex items-center justify-between bg-muted/30 border-b border-border">
+        <div className='flex items-center gap-2'>
+          <Table2Icon className="size-4" />
+          <span className="text-sm text-foreground font-mono font-medium">{table.name}</span>
+          <Badge variant="outline" className='h-5 px-1.5 text-[10px] font-medium bg-background/50 rounded-2xl'>
+            {table.columns.length} cols
+          </Badge>
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon-xs" className='rounded text-foreground'><EllipsisVerticalIcon className="size-4" /></Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" sideOffset={4}>
+            <div className="flex flex-col gap-0.5">
+              <button
+                onClick={copyName}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
+              >
+                {copied == 'copy_name' ? <CheckIcon className="size-3.5 text-green-500" /> : <CopyIcon className="size-3.5" />}
+                Copy name
+              </button>
+              <button
+                onClick={copyAsSQL}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
+              >
+                {copied == 'copy_sql' ? <CheckIcon className="size-3.5 text-green-500" /> : <CopyIcon className="size-3.5" />}
+                Copy as SQL
+              </button>
+              <button
+                onClick={copyAsMarkdown}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
+              >
+                {copied == 'copy_markdown' ? <CheckIcon className="size-3.5 text-green-500" /> : <CopyIcon className="size-3.5" />}
+                Copy as Markdown
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="py-1">

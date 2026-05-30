@@ -24,7 +24,7 @@ const OUTGOING_COLOR = 'oklch(0.707 0.165 254.624)'
 const INCOMING_COLOR = 'oklch(0.704 0.191 22.216)'
 const BOTH_COLOR = 'var(--primary)'
 const DEFAULT_EDGE = 'oklch(0.556 0 0 / 40%)'
-const DIMMED_OPACITY = 0.1
+const DIMMED_OPACITY = 0.05
 
 const SelectedTableContext = createContext<string | null>(null)
 
