@@ -1,6 +1,6 @@
 ---
-import '@fontsource/inter/latin-400.css';
-import '@fontsource/inter/latin-500.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '@fontsource/jetbrains-mono/latin-500.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 
@@ -25,11 +25,20 @@ const { description, title } = Astro.props;
     <meta name="description" content={description} />
     <title>{title}</title>
   </head>
-  <body class="bg-white text-stone-950 dark:bg-stone-950 dark:text-stone-100 antialiased">
-    <Header />
-    <main>
-      <slot />
-    </main>
-    <Footer />
+  <body class="bg-[#0a0a0a] text-[#e5e5e5] antialiased selection:bg-[#c9a96e]/20 selection:text-[#c9a96e]">
+    <div class="fixed inset-0 z-0 pointer-events-none" style="background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px); background-size: 32px 32px;"></div>
+    <div class="relative z-10">
+      <Header />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
   </body>
 </html>
+
+<style is:global>
+  html {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+</style>

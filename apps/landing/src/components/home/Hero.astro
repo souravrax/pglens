@@ -1,35 +1,39 @@
-<section class="py-20 sm:py-28">
-  <div class="mx-auto max-w-2xl px-6 text-center">
-    <div class="flex flex-col items-center gap-8">
-      <img
-        src="/assets/icon.png"
-        alt="PgLens"
-        class="h-20 w-20 rounded-2xl shadow-sm"
-      />
-      <div class="flex flex-col gap-5">
-        <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">
-          PostgreSQL schemas,<br class="hidden sm:block" /> visualized
+<section class="py-24 sm:py-32">
+  <div class="mx-auto max-w-4xl px-6">
+    <div class="flex flex-col gap-10">
+      <div class="flex items-center gap-4">
+        <img src="/assets/icon.png" alt="" class="h-10 w-10 rounded-[4px] opacity-70" />
+        <span class="text-xs text-[#737373]">v0.2.1</span>
+      </div>
+
+      <div class="flex flex-col gap-6">
+        <h1 class="text-2xl sm:text-3xl font-medium leading-relaxed tracking-tight text-[#e5e5e5]">
+          PostgreSQL schemas,<br />
+          <span class="text-[#737373]">visualized inside VS Code.</span>
         </h1>
-        <p class="text-stone-500 dark:text-stone-400 text-lg leading-relaxed max-w-lg mx-auto">
-          A VS Code extension that turns your PostgreSQL database into an interactive ER diagram. No context switching. No web apps. Right inside your editor.
+        <p class="text-sm text-[#737373] leading-relaxed max-w-lg">
+          An extension that turns your database into an interactive ER diagram.
+          No web apps. No context switching. Click a table, see its columns, keys, and relations.
         </p>
       </div>
-      <div class="flex flex-col sm:flex-row gap-3">
+
+      <div class="flex flex-wrap items-center gap-4 text-xs">
         <a
           href="https://marketplace.visualstudio.com/items?itemName=souravrax.pglens"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center justify-center rounded-full bg-stone-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-stone-950 dark:hover:bg-stone-200"
+          class="inline-flex items-center gap-2 border border-[#c9a96e]/30 px-5 py-2.5 text-[#c9a96e] hover:bg-[#c9a96e]/5 transition"
         >
-          Install on VS Code
+          <span>install from marketplace</span>
+          <span class="opacity-50">→</span>
         </a>
         <a
           href="https://open-vsx.org/extension/souravrax/pglens"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center justify-center rounded-full border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-300 transition hover:bg-stone-50 dark:hover:bg-stone-800"
+          class="text-[#737373] hover:text-[#e5e5e5] transition"
         >
-          Open VSX
+          open-vsx
         </a>
       </div>
     </div>

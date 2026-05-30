@@ -1,53 +1,55 @@
 ---
 const features = [
   {
+    num: '01',
     name: 'Interactive ER Diagrams',
-    description:
-      'Click any table node to inspect columns, primary keys, indexes, and foreign key relationships in a floating tabbed card.',
+    desc: 'Click any table to open a tabbed card with columns, indexes, and foreign key relations. Edges highlight automatically.',
   },
   {
+    num: '02',
     name: 'Two-Way Selection',
-    description:
-      'Click a table in the graph to reveal it in the sidebar Tables panel, or click the eye icon in the panel to highlight it in the graph.',
+    desc: 'Click a table in the graph to reveal it in the sidebar. Click the eye icon in the sidebar to focus it in the graph.',
   },
   {
+    num: '03',
     name: 'Schema Browser',
-    description:
-      'Browse all schemas for your active connection. Select any schema to generate its full ER diagram with automatic Dagre layout.',
+    desc: 'Browse every schema for your active connection. Select one to generate its full diagram with automatic layout.',
   },
   {
-    name: 'Secure Connections',
-    description:
-      'PostgreSQL URLs are stored in your OS keychain via VS Code SecretStorage. No credentials saved to disk.',
+    num: '04',
+    name: 'Secure Storage',
+    desc: 'Connection URLs are stored in your OS keychain via VS Code SecretStorage. No credentials saved to disk.',
   },
   {
+    num: '05',
     name: 'Theme Aware',
-    description:
-      'The graph, sidebar panels, and detail cards automatically adapt to your VS Code color theme using standard CSS variables.',
+    desc: 'Graph, sidebar panels, and detail cards automatically adapt to your VS Code color theme.',
   },
   {
+    num: '06',
     name: 'Rich Column Details',
-    description:
-      'See PK, FK, Identity, Unique, and Indexed icons alongside data types, nullability, and DEFAULT values at a glance.',
+    desc: 'See PK, FK, Identity, Unique, and Indexed icons alongside data types, nullability, and DEFAULT values.',
   },
 ];
 ---
 
-<section class="py-16 sm:py-20 border-t border-stone-100 dark:border-stone-800">
-  <div class="mx-auto max-w-5xl px-6">
+<section class="py-16 border-t border-white/[0.06]">
+  <div class="mx-auto max-w-4xl px-6">
     <div class="flex flex-col gap-12">
-      <h2 class="text-2xl font-semibold tracking-tight">What it does</h2>
-      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          features.map((feature) => (
-            <div class="flex flex-col gap-3">
-              <h3 class="text-base font-medium">{feature.name}</h3>
-              <p class="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
-                {feature.description}
-              </p>
+      <div class="flex items-baseline gap-3">
+        <span class="text-xs text-[#c9a96e]">//</span>
+        <h2 class="text-xs text-[#737373] uppercase tracking-widest">features</h2>
+      </div>
+      <div class="grid gap-px bg-white/[0.04]">
+        {features.map((f) => (
+          <div class="bg-[#0a0a0a] p-6 flex flex-col gap-3 group hover:bg-white/[0.02] transition">
+            <div class="flex items-center gap-3">
+              <span class="text-[10px] text-[#737373]">{f.num}</span>
+              <h3 class="text-sm font-medium text-[#e5e5e5]">{f.name}</h3>
             </div>
-          ))
-        }
+            <p class="text-xs text-[#737373] leading-relaxed pl-7">{f.desc}</p>
+          </div>
+        ))}
       </div>
     </div>
   </div>
