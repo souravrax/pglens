@@ -13,9 +13,9 @@ import ReactFlow, {
 import type { Node } from 'reactflow'
 import 'reactflow/dist/style.css'
 import TableNode from './TableNode'
+import TableDetails from './TableDetails'
 import { schemaToGraph, applyDagreLayout, type TableNodeData, type Schema } from '@/lib/transform'
 
-import { X, ArrowRight, List } from 'lucide-react'
 import {
   PkIcon,
   FkIcon,
@@ -24,9 +24,6 @@ import {
   IndexedIcon,
   NullableIcon,
 } from '@/lib/columnIcons'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -34,7 +31,6 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
-import { cn } from '@/lib/utils'
 
 const OUTGOING_COLOR = 'oklch(0.707 0.165 254.624)'
 const INCOMING_COLOR = 'oklch(0.704 0.191 22.216)'
@@ -151,15 +147,6 @@ function FlowGraph({ schema, externalSelectedTable, onTableSelect }: { schema: S
     () => (selectedTable && schema ? (schema.tables.find((t) => t.name === selectedTable) ?? null) : null),
     [selectedTable, schema]
   )
-  const selectedRelations = useMemo(
-    () =>
-      selectedTable && schema
-        ? schema.relations.filter((r) => r.fromTable === selectedTable || r.toTable === selectedTable)
-        : [],
-    [selectedTable, schema]
-  )
-  const outgoingRels = selectedRelations.filter((r) => r.fromTable === selectedTable)
-  const incomingRels = selectedRelations.filter((r) => r.toTable === selectedTable)
 
   const minimapNodeColor = useCallback(
     (node: { id: string }) => {
@@ -186,7 +173,7 @@ function FlowGraph({ schema, externalSelectedTable, onTableSelect }: { schema: S
     <SelectedTableContext.Provider value={selectedTable}>
       <div className="w-full h-full relative bg-background overflow-hidden">
         {error && (
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs">
+          <div className="absolute top-10 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-destructive text-xs">
             {error}
           </div>
         )}
@@ -235,134 +222,12 @@ function FlowGraph({ schema, externalSelectedTable, onTableSelect }: { schema: S
           </ContextMenuContent>
         </ContextMenu>
 
-
         {selectedTableData && (
-          <div className="absolute top-4 right-4 w-80 max-h-[calc(100%-80px)] flex flex-col rounded-xl border bg-card/95 backdrop-blur-xl shadow-2xl z-20 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/20 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <span className="text-sm font-bold tracking-tight text-foreground truncate max-w-[180px]">
-                  {selectedTableData.name}
-                </span>
-                <Badge variant="outline" className="bg-background/50">{selectedTableData.columns.length}</Badge>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md" onClick={() => setSelectedTable(null)}>
-                <X className="w-4 h-4 text-muted-foreground" />
-              </Button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <div className="flex flex-col">
-                {selectedTableData.primaryKeys.length > 0 && (
-                  <div className="px-4 py-3 border-b">
-                    <div className="flex items-center gap-2 mb-2 text-amber-500">
-                      <PkIcon className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Primary Keys</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedTableData.primaryKeys.map((pk, idx) => (
-                        <Badge key={`${selectedTableData.name}-${pk}-${idx}`} className="font-mono">{pk}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedTableData.indexes.length > 0 && (
-                  <div className="px-4 py-3 border-b">
-                    <div className="flex items-center gap-2 mb-2 text-primary">
-                      <IndexedIcon className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Indexes ({selectedTableData.indexes.length})</span>
-                    </div>
-                    <div className="space-y-1.5">
-                      {selectedTableData.indexes.map((idx) => (
-                        <div key={idx.name} className="flex items-center gap-2 text-xs">
-                          <Badge variant={idx.unique ? 'default' : 'secondary'}>{idx.unique ? 'Unique' : 'Idx'}</Badge>
-                          <span className="text-muted-foreground font-mono truncate">({idx.columns.join(', ')})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {(outgoingRels.length > 0 || incomingRels.length > 0) && (
-                  <div className="px-4 py-3 border-b bg-muted/10">
-                    <div className="flex items-center gap-2 mb-3">
-                      <FkIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Relations</span>
-                    </div>
-                    <div className="space-y-4">
-                      {outgoingRels.length > 0 && (
-                        <div className="space-y-1.5">
-                          <div className="text-[9px] font-bold text-cyan-500 uppercase flex items-center gap-1.5 mb-1">
-                            <ArrowRight className="w-2.5 h-2.5" /> Outgoing
-                          </div>
-                          {outgoingRels.map((rel) => (
-                            <div key={rel.constraintName} className="flex flex-col gap-0.5 rounded-md p-1.5 bg-background border border-border/50">
-                              <div className="text-[10px] font-mono font-bold text-foreground flex items-center gap-1.5">
-                                {rel.fromColumn} <span className="text-muted-foreground font-normal">→</span>
-                              </div>
-                              <div className="text-[10px] font-mono text-primary truncate pl-4">
-                                {rel.toTable}.{rel.toColumn}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {incomingRels.length > 0 && (
-                        <div className="space-y-1.5">
-                          <div className="text-[9px] font-bold text-pink-500 uppercase flex items-center gap-1.5 mb-1">
-                            <FkIcon className="w-2.5 h-2.5" /> Incoming
-                          </div>
-                          {incomingRels.map((rel) => (
-                            <div key={rel.constraintName} className="flex flex-col gap-0.5 rounded-md p-1.5 bg-background border border-border/50">
-                              <div className="text-[10px] font-mono text-primary truncate flex items-center gap-1.5">
-                                {rel.fromTable}.{rel.fromColumn} <span className="text-muted-foreground font-normal">→</span>
-                              </div>
-                              <div className="text-[10px] font-mono font-bold text-foreground pl-4">{rel.toColumn}</div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <div className="px-4 py-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <List className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Columns</span>
-                    </div>
-                  </div>
-                  <div className="space-y-1 font-mono">
-                    {selectedTableData.columns.map((col) => {
-                      const isPK = selectedTableData.primaryKeys.includes(col.name)
-                      const fkRel = schema.relations.find((r) => r.fromTable === selectedTableData.name && r.fromColumn === col.name)
-                      const isIdx = selectedTableData.indexes.some((idx) => idx.columns.includes(col.name))
-                      return (
-                        <div
-                          key={col.name}
-                          className={cn(
-                            'flex items-center gap-2.5 py-1.5 px-2 rounded-md group transition-colors',
-                            isPK ? 'bg-amber-500/5' : fkRel ? 'bg-primary/5' : 'hover:bg-muted/50'
-                          )}
-                        >
-                          <div className="w-5 flex justify-center shrink-0">
-                            {isPK ? <span className="text-[9px] font-bold text-amber-500">PK</span> : fkRel ? <span className="text-[9px] font-bold text-primary">FK</span> : null}
-                          </div>
-                          <span className={cn('text-[11px] flex-1 truncate', isPK ? 'text-amber-500 font-bold' : fkRel ? 'text-primary font-bold' : 'text-foreground/80 font-medium')}>
-                            {col.name}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground/40 italic">{col.type}</span>
-                          {col.nullable && <span className="text-[8px] px-1 rounded bg-muted text-muted-foreground/50 uppercase font-bold">null</span>}
-                          {isIdx && !isPK && <span className="text-[8px] px-1 rounded bg-primary/10 text-primary uppercase font-bold">idx</span>}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <TableDetails
+            table={selectedTableData}
+            schema={schema}
+            onClose={() => setSelectedTable(null)}
+          />
         )}
 
         <div id="column-type-information" className="absolute bottom-0 left-0 right-0 w-full h-10 bg-background/50 backdrop-blur-sm flex items-center justify-center gap-6 text-[10px] text-muted-foreground border-t border-border/30 z-10">
