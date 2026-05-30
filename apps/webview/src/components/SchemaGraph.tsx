@@ -26,6 +26,13 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
 import { cn } from '@/lib/utils'
 
 const OUTGOING_COLOR = 'oklch(0.707 0.165 254.624)'
@@ -171,31 +178,49 @@ function FlowGraph({ schema }: { schema: Schema }) {
           </div>
         )}
 
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={(_, node) => setSelectedTable(node.id)}
-          onPaneClick={() => setSelectedTable(null)}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          fitView
-          fitViewOptions={fitViewOptions}
-          minZoom={0.2}
-          maxZoom={2}
-          elevateNodesOnSelect={false}
-          attributionPosition="bottom-right"
-        >
-          <Background variant={BackgroundVariant.Dots} color="var(--color-foreground)" gap={32} size={1} />
-          <Controls position='top-left' showInteractive={false} className="bg-card! border-border! fill-foreground!" />
-          <MiniMap
-            nodeColor={minimapNodeColor}
-            maskColor="rgba(0, 0, 0, 0.03)"
-            className="bg-card! border-border! rounded-lg! overflow-hidden"
-            position='top-right'
-          />
-        </ReactFlow>
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div className="w-full h-full">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onNodeClick={(_, node) => setSelectedTable(node.id)}
+                onPaneClick={() => setSelectedTable(null)}
+                nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
+                fitView
+                fitViewOptions={fitViewOptions}
+                minZoom={0.2}
+                maxZoom={2}
+                elevateNodesOnSelect={false}
+                attributionPosition="bottom-right"
+              >
+                <Background variant={BackgroundVariant.Dots} color="var(--color-foreground)" gap={32} size={1} />
+                <Controls position='top-left' showInteractive={false} className="bg-card! border-border! fill-foreground! shadow-none" />
+                <MiniMap
+                  nodeColor={minimapNodeColor}
+                  maskColor="rgba(0, 0, 0, 0.03)"
+                  className="bg-card! border-border! rounded-lg! overflow-hidden"
+                  position='top-right'
+                />
+              </ReactFlow>
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-48">
+            <ContextMenuItem onSelect={() => fitView({ padding: 0.15, duration: 300 })}>
+              Fit View
+            </ContextMenuItem>
+            <ContextMenuItem onSelect={() => setSelectedTable(null)}>
+              Reset Selection
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={() => window.location.reload()}>
+              Reload
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
 
 
         {selectedTableData && (
