@@ -1,51 +1,150 @@
 @import 'tailwindcss';
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
 
-@theme {
-  /* VS Code first, then Tauri, then browser fallback */
-  --color-background: var(--vscode-editor-background, var(--tauri-window-bg, oklch(1 0 0)));
-  --color-foreground: var(--vscode-editor-foreground, var(--tauri-window-fg, oklch(0.141 0.005 285.823)));
+@custom-variant dark (&:is(.dark *));
 
-  --color-card: var(--vscode-panel-background, var(--tauri-panel-bg, oklch(1 0 0)));
-  --color-card-foreground: var(--vscode-panel-foreground, var(--tauri-panel-fg, oklch(0.141 0.005 285.823)));
-
-  --color-popover: var(--vscode-editor-background, var(--tauri-window-bg, oklch(1 0 0)));
-  --color-popover-foreground: var(--vscode-editor-foreground, var(--tauri-window-fg, oklch(0.141 0.005 285.823)));
-
-  --color-primary: var(--vscode-button-background, var(--tauri-accent, oklch(0.457 0.24 277.023)));
-  --color-primary-foreground: var(--vscode-button-foreground, var(--tauri-accent-fg, oklch(0.962 0.018 272.314)));
-
-  --color-secondary: var(--vscode-button-secondaryBackground, var(--tauri-secondary-bg, oklch(0.967 0.001 286.375)));
-  --color-secondary-foreground: var(--vscode-button-secondaryForeground, var(--tauri-secondary-fg, oklch(0.21 0.006 285.885)));
-
-  --color-muted: var(--vscode-input-background, var(--tauri-muted-bg, oklch(0.967 0.001 286.375)));
-  --color-muted-foreground: var(--vscode-input-foreground, var(--tauri-muted-fg, oklch(0.552 0.016 285.938)));
-
-  --color-accent: var(--vscode-list-hoverBackground, var(--tauri-accent-bg, oklch(0.967 0.001 286.375)));
-  --color-accent-foreground: var(--vscode-list-hoverForeground, var(--tauri-accent-fg, oklch(0.21 0.006 285.885)));
-
-  --color-destructive: var(--vscode-errorForeground, var(--tauri-destructive, oklch(0.577 0.245 27.325)));
-
-  --color-border: var(--vscode-panel-border, var(--tauri-border, oklch(0.92 0.004 286.32)));
-  --color-input: var(--vscode-input-border, var(--tauri-input-border, oklch(0.92 0.004 286.32)));
-  --color-ring: var(--vscode-focusBorder, var(--tauri-ring, oklch(0.705 0.015 286.067)));
-
-  --radius: 0.5rem;
-}
-
-/* Browser dev mode — no vscode vars exist, so fallbacks above kick in.
+/* Browser dev mode — no vscode vars exist, so fallbacks in @theme inline kick in.
    Tauri can inject --tauri-* vars before this stylesheet loads.
    In browser dev, nothing is injected, so oklch fallbacks are used. */
 
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Inter Variable', sans-serif;
+
+  --color-background: var(--vscode-editor-background, var(--tauri-window-bg, var(--background, oklch(1 0 0))));
+  --color-foreground: var(--vscode-editor-foreground, var(--tauri-window-fg, var(--foreground, oklch(0.145 0 0))));
+
+  --color-card: var(--vscode-panel-background, var(--tauri-panel-bg, var(--card, oklch(1 0 0))));
+  --color-card-foreground: var(--vscode-panel-foreground, var(--tauri-panel-fg, var(--card-foreground, oklch(0.145 0 0))));
+
+  --color-popover: var(--vscode-editor-background, var(--tauri-window-bg, var(--popover, oklch(1 0 0))));
+  --color-popover-foreground: var(--vscode-editor-foreground, var(--tauri-window-fg, var(--popover-foreground, oklch(0.145 0 0))));
+
+  --color-primary: var(--vscode-button-background, var(--tauri-accent, var(--primary, oklch(0.205 0 0))));
+  --color-primary-foreground: var(--vscode-button-foreground, var(--tauri-accent-fg, var(--primary-foreground, oklch(0.985 0 0))));
+
+  --color-secondary: var(--vscode-button-secondaryBackground, var(--tauri-secondary-bg, var(--secondary, oklch(0.97 0 0))));
+  --color-secondary-foreground: var(--vscode-button-secondaryForeground, var(--tauri-secondary-fg, var(--secondary-foreground, oklch(0.205 0 0))));
+
+  --color-muted: var(--vscode-input-background, var(--tauri-muted-bg, var(--muted, oklch(0.97 0 0))));
+  --color-muted-foreground: var(--vscode-input-foreground, var(--tauri-muted-fg, var(--muted-foreground, oklch(0.556 0 0))));
+
+  --color-accent: var(--vscode-list-hoverBackground, var(--tauri-accent-bg, var(--accent, oklch(0.97 0 0))));
+  --color-accent-foreground: var(--vscode-list-hoverForeground, var(--tauri-accent-fg, var(--accent-foreground, oklch(0.205 0 0))));
+
+  --color-destructive: var(--vscode-errorForeground, var(--tauri-destructive, var(--destructive, oklch(0.577 0.245 27.325))));
+
+  --color-border: var(--vscode-panel-border, var(--tauri-border, var(--border, oklch(0.922 0 0))));
+  --color-input: var(--vscode-input-border, var(--tauri-input-border, var(--input, oklch(0.922 0 0))));
+  --color-ring: var(--vscode-focusBorder, var(--tauri-ring, var(--ring, oklch(0.708 0 0))));
+
+  --color-chart-1: var(--chart-1, oklch(0.87 0 0));
+  --color-chart-2: var(--chart-2, oklch(0.556 0 0));
+  --color-chart-3: var(--chart-3, oklch(0.439 0 0));
+  --color-chart-4: var(--chart-4, oklch(0.371 0 0));
+  --color-chart-5: var(--chart-5, oklch(0.269 0 0));
+
+  --color-sidebar: var(--sidebar, oklch(0.985 0 0));
+  --color-sidebar-foreground: var(--sidebar-foreground, oklch(0.145 0 0));
+  --color-sidebar-primary: var(--sidebar-primary, oklch(0.205 0 0));
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground, oklch(0.985 0 0));
+  --color-sidebar-accent: var(--sidebar-accent, oklch(0.97 0 0));
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground, oklch(0.205 0 0));
+  --color-sidebar-border: var(--sidebar-border, oklch(0.922 0 0));
+  --color-sidebar-ring: var(--sidebar-ring, oklch(0.708 0 0));
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-#root {
-  width: 100vw;
-  height: 100vh;
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground m-0 p-0 overflow-hidden;
+    font-family: var(--vscode-font-family, var(--tauri-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif));
+  }
+  html {
+    @apply font-sans;
+  }
+  #root {
+    @apply w-screen h-screen;
+  }
 }
