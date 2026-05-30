@@ -193,8 +193,7 @@
     }
   },
   "scripts": {
-    "copy:readme": "cp ../../README.md .",
-    "vscode:prepublish": "npm run copy:readme && npm run compile && npm run build:webview",
+    "vscode:prepublish": "npm run compile && npm run build:webview",
     "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --sourcemap --target=node20",
     "compile:watch": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --sourcemap --target=node20 --watch",
     "build:webview": "cd ../webview && pnpm run build",
