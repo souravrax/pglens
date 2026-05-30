@@ -2,7 +2,7 @@
   "name": "pglens",
   "displayName": "PgLens - PostgreSQL Schema Visualizer",
   "description": "Visualize your PostgreSQL database schemas as interactive ER diagrams",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "publisher": "souravrax",
   "icon": "images/icon.png",
   "repository": {
@@ -193,7 +193,8 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile && npm run build:webview",
+    "copy:readme": "cp ../../README.md .",
+    "vscode:prepublish": "npm run copy:readme && npm run compile && npm run build:webview",
     "compile": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --sourcemap --target=node20",
     "compile:watch": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --sourcemap --target=node20 --watch",
     "build:webview": "cd ../webview && pnpm run build",

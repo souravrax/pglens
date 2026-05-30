@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-05-30
+
+### Added
+
+- **Tables panel** — New sidebar view (`pglens.tables`) that lists every table in the loaded schema with expandable sections for Columns, Indexes, and Relations.
+- **Two-way table selection** — Click a table in the webview graph to reveal it in the Tables panel. Click the eye icon on a table in the Tables panel to highlight it in the webview.
+- **Tabbed table details card** — The webview’s floating table-inspector now uses tabs (Columns, Indexes, Relations) and lives at the bottom-right with a fixed height and scrollable content.
+- **Rich column information** — Column rows now display PK/FK/Identity/Unique/Indexed icons, data type, nullable state, and DEFAULT values.
+- **API client selection hooks** — `PgLensClient` now exposes `selectTable` and `onSelectTable` so the webview can communicate table selections to the host without leaking VS Code API into React components.
+
+### Changed
+
+- **Extracted `TableDetails` component** — Moved the entire table-inspector card out of `SchemaGraph` into a dedicated `TableDetails.tsx` component, cutting `SchemaGraph` roughly in half.
+- **Styling cleanup** — Replaced all hardcoded colors (amber, cyan, pink) with shadcn CSS variables (`primary`, `muted-foreground`, `destructive`, etc.) and standard components.
+
 ## [0.1.2] - 2025-06-30
 
 ### Added
@@ -41,7 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Project renamed from `pgviz` to `PgLens`.
 
-[Unreleased]: https://github.com/souravrax/pglens/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/souravrax/pglens/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/souravrax/pglens/releases/tag/v0.2.0
 [0.1.2]: https://github.com/souravrax/pglens/releases/tag/v0.1.2
 [0.1.1]: https://github.com/souravrax/pglens/releases/tag/v0.1.1
 [0.1.0]: https://github.com/souravrax/pglens/releases/tag/v0.1.0

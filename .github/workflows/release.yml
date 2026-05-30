@@ -26,12 +26,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build webview
-        run: pnpm --filter webview build
-
-      - name: Compile extension
-        run: pnpm --filter pglens compile
-
       - name: Package extension
         run: |
           cd apps/vscode-extension

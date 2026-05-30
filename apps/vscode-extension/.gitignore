@@ -3,3 +3,4 @@ out/
 media/webview/
 *.vsix
 .DS_Store
+README.md
